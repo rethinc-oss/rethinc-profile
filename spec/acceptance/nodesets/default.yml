@@ -1,0 +1,14 @@
+HOSTS:
+  ubuntu-1804-x64:
+    roles:
+      - agent
+    platform: ubuntu-1804-x86_64
+    hypervisor: vagrant
+    box: rethinc-oss/baseimage-ubuntu
+    box_url: https://app.vagrantup.com/rethinc-oss/boxes/baseimage-ubuntu
+    ip: 192.168.20.20
+    host_env:
+      PATH:
+       - /opt/puppetlabs/bin
+CONFIG:
+  masterless: true

@@ -1,0 +1,6 @@
+<%- | String $php_version | -%>
+#
+# MANAGED BY PUPPET
+#
+[Unit]
+ConditionDirectoryNotEmpty=/etc/php/<%= $php_version -%>/fpm/pool.d
