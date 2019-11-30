@@ -1,4 +1,6 @@
 <%- | String $name,
+      String $user,
+      String $group,
       Optional[String] $prefix = undef
 | -%>
 ;
