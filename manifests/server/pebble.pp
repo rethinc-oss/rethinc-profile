@@ -8,12 +8,28 @@ class profile::server::pebble {
     require => [ Class['apt::update'], Apt::Ppa['ppa:longsleep/golang-backports'] ],
   }
 
-  exec { 'install_pebble':
+  exec { 'download_pebble':
     command     => '/usr/bin/go get -u github.com/letsencrypt/pebble/...',
     environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
     creates     => '/opt/go/src/github.com/letsencrypt/pebble/',
     logoutput   => true,
     require     => [ Package['golang-go'] ],
+  }
+
+  exec { 'checkout_pebble':
+    command     => '/usr/bin/git checkout v2.0.2',
+    environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
+    cwd         => '/opt/go/src/github.com/letsencrypt/pebble/',
+    logoutput   => true,
+    require     => [ Exec['download_pebble'] ],
+  }
+
+  exec { 'install_pebble':
+    command     => '/usr/bin/go install ./...',
+    environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
+    cwd         => '/opt/go/src/github.com/letsencrypt/pebble/',
+    logoutput   => true,
+    require     => [ Exec['checkout_pebble'] ],
   }
 
   file { '/opt/pebble':

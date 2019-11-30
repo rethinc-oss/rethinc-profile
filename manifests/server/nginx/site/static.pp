@@ -19,13 +19,20 @@ define profile::server::nginx::site::static(
   String $user                        = $domain,
   String $user_dir                    = "/var/www/${domain}",
   String $webroot                     = "${user_dir}/htdocs",
-  String $log_dir                     = '/var/log/nginx',
+  String $log_dir                     = '/var/log/nginx/',
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
   }
 
-  $real_domain                = "${domain}.${::profile::server::nginx::domain_suffix}"
+#  $real_domain                = "${domain}.${::profile::server::nginx::domain_suffix}"
+if $::profile::server::nginx::domain_suffix == "" {
+  $real_domain = "${domain}"
+}
+else {
+  $real_domain = "${domain}.${::profile::server::nginx::domain_suffix}"
+}
+
   $primary_domain             = ($domain_www and $domain_primary == www) ? { true => "www.${real_domain}", false => $real_domain }
   $secondary_domain           = $domain_www ? { true => $domain_primary ? { www => $real_domain, base => "www.${real_domain}"}, false => undef }
 
