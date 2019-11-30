@@ -11,8 +11,8 @@
 prefix = <%= $prefix -%>
 <%- } -%>
 
-user = <%= $name %>
-group = <%= $name %>
+user = <%= $user %>
+group = <%= $group %>
 
 listen = /run/php/<%= $name -%>.sock
 

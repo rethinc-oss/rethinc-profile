@@ -1,5 +1,7 @@
 define profile::server::phpfpm::pool(
   String $pool_name = $title,
+  String $pool_user = $pool_name,
+  String $pool_group = $pool_name,
   String $pool_php_version = undef,
   String $pool_conf_dir = "/etc/php/${pool_php_version}/fpm/pool.d"
 ){
@@ -14,6 +16,8 @@ define profile::server::phpfpm::pool(
     ensure  => present,
     content => epp('profile/phpfpm/pool.conf.epp', {
       name => $pool_name,
+      user => $pool_user,
+      group => $pool_group,
     }),
     notify  => Service[$pool_fpm_service]
   }

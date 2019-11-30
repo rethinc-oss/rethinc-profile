@@ -43,6 +43,8 @@ define profile::server::nginx::site::php(
   }
 
   ::profile::server::phpfpm::pool { $domain:
+    pool_user => $user,
+    pool_group => $user,
     pool_php_version => '7.3',
   }
 
