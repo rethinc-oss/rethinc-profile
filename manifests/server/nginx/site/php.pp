@@ -18,6 +18,7 @@ define profile::server::nginx::site::php(
   Integer $https_port                 = 443,
   String $user                        = $domain,
   String $user_dir                    = "/var/www/${domain}",
+  Boolean $create_user                = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx',
   String $site_php_version            = undef,
@@ -58,6 +59,7 @@ define profile::server::nginx::site::php(
     https_port     => $https_port,
     user           => $user,
     user_dir       => $user_dir,
+    create_user    => $create_user,
     webroot        => $webroot,
     log_dir        => $log_dir,
   }
