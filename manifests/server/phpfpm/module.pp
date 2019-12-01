@@ -10,7 +10,7 @@ define profile::server::phpfpm::module(
   }
 
   unless defined(::Package[$extension_package]) {
-    notice { 'Realizing extension!!': }
+    notify { "Realizing extension: ${extension_package}": }
     package { $extension_package:
       ensure => present,
     }

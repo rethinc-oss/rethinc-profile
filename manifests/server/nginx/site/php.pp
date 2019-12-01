@@ -39,7 +39,7 @@ define profile::server::nginx::site::php(
 
   realize (::Profile::Server::Phpfpm::Instance[$site_php_version])
 
-  $site_php_modules.all |$site_module| {
+  $site_php_modules.each |$site_module| {
     realize ::Profile::Server::Phpfpm::Module["${site_php_version}-${site_module}"]
   }
 
@@ -50,24 +50,34 @@ define profile::server::nginx::site::php(
   }
 
   ::profile::server::nginx::site::static{ $title:
-    domain         => $domain,
-    domain_www     => $domain_www,
-    domain_primary => $domain_primary,
-    priority       => $priority,
-    https          => $https,
-    http_port      => $http_port,
-    https_port     => $https_port,
-    user           => $user,
-    user_dir       => $user_dir,
-    create_user    => $create_user,
-    webroot        => $webroot,
-    log_dir        => $log_dir,
+    domain          => $domain,
+    domain_www      => $domain_www,
+    domain_primary  => $domain_primary,
+    priority        => $priority,
+    https           => $https,
+    http_port       => $http_port,
+    https_port      => $https_port,
+    user            => $user,
+    user_dir        => $user_dir,
+    manage_user_dir => $manage_user_dir,
+    webroot         => $webroot,
+    log_dir         => $log_dir,
+  }
+
+  nginx::resource::location { "${vhost_name_main}-index":
+    ensure               => present,
+    server               => $vhost_name_main,
+    priority             => 510,
+    ssl                 => $https,
+    ssl_only            => $https,
+    location             => '= /',
+    index_files          => ['index.php'],
   }
 
   nginx::resource::location{ "${vhost_name_main}-php":
     ensure              => present,
     server              => $vhost_name_main,
-    priority            => 510,
+    priority            => 520,
     ssl                 => $https,
     ssl_only            => $https,
     location            => '~ \.php$',

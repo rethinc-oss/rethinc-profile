@@ -19,9 +19,9 @@ class profile::server::phpfpm (
 ){
   apt::ppa { 'ppa:ondrej/php': }
 
-  $php_versions.all |$php_version, $entries| {
+  $php_versions.each |$php_version, $entries| {
     @::profile::server::phpfpm::instance{ $php_version: }
-    $entries['extensions'].all |$php_extension| {
+    $entries['extensions'].each |$php_extension| {
       @::profile::server::phpfpm::module{ "${php_version}-${php_extension}": }
     }
   }
