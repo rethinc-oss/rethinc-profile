@@ -18,7 +18,7 @@ define profile::server::nginx::site::static(
   Integer $https_port                 = 443,
   String $user                        = $domain,
   String $user_dir                    = "/var/www/${domain}",
-  Boolean $create_user                = true,
+  Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx/',
 ){
@@ -60,13 +60,22 @@ else {
   $https_certificate_key      = "/etc/letsencrypt/live/${real_domain}/privkey.pem"
 
   # define the user account for the webpage
-  if create_user {
-    user { $user:
+  if $manage_user_dir {
+    $create_user_params = {
       ensure     => 'present',
       home       => $user_dir,
       managehome => true,
       before     => User['www-data'],
     }
+  } else {
+    $create_user_params = {
+      ensure     => 'present',
+      before     => User['www-data'],
+    }
+  }
+
+  user { $user:
+    * => $create_user_params,
   }
 
   User <| title == www-data |> { groups +> $user }
