@@ -64,31 +64,22 @@ define profile::server::nginx::site::php(
     log_dir         => $log_dir,
   }
 
-  nginx::resource::location { "${vhost_name_main}-index":
-    ensure               => present,
-    server               => $vhost_name_main,
-    priority             => 510,
-    ssl                 => $https,
-    ssl_only            => $https,
-    location             => '= /',
-    index_files          => ['index.php'],
-  }
-
   nginx::resource::location{ "${vhost_name_main}-php":
-    ensure              => present,
-    server              => $vhost_name_main,
-    priority            => 520,
-    ssl                 => $https,
-    ssl_only            => $https,
-    location            => '~ \.php$',
-    index_files         => [],
-    proxy               => undef,
-    fastcgi             => $pool_file_socket,
-    fastcgi_script      => undef,
-    location_cfg_append => {
+    ensure                    => present,
+    server                    => $vhost_name_main,
+    priority                  => 580,
+    ssl                       => $https,
+    ssl_only                  => $https,
+    location                  => '~ \.php$',
+    index_files               => [],
+    proxy                     => undef,
+    fastcgi                   => $pool_file_socket,
+    fastcgi_script            => undef,
+    location_cfg_append       => {
       fastcgi_connect_timeout => '3m',
       fastcgi_read_timeout    => '3m',
-      fastcgi_send_timeout    => '3m'
-    }
+      fastcgi_send_timeout    => '3m',
+    },
+    try_files                 => ['$uri', '=404'],
   }
 }

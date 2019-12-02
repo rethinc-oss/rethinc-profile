@@ -2,6 +2,7 @@ class profile::server::mysql {
   $override_options = {
     'mysqld' => {
       'bind-address' => '0.0.0.0',
+      'sql-mode' => 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION',
     }
   }
 
