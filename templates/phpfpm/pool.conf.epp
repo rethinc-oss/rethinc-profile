@@ -1,7 +1,8 @@
 <%- | String $name,
       String $user,
       String $group,
-      Optional[String] $prefix = undef
+      Optional[String] $prefix = undef,
+      Hash $pool_php_admin_values,
 | -%>
 ;
 ; MANAGED BY PUPPET
@@ -125,3 +126,7 @@ pm.max_spare_servers = 3
 ;php_admin_value[error_log] = /var/log/fpm-php.www.log
 ;php_admin_flag[log_errors] = on
 ;php_admin_value[memory_limit] = 32M
+
+<% $pool_php_admin_values.each |$key, $value| { -%>
+php_admin_value[<%= $key %>]=<%= $value %>
+<% } -%>

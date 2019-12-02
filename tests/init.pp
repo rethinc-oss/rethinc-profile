@@ -4,7 +4,12 @@ node default {
     include ::profile::server::pebble
     include ::profile::server::nginx
     include ::profile::server::phpfpm
-    ::profile::server::nginx::site::php{ 'example.com': domain_www => true, https => true, site_php_version => '7.3' }
+    ::profile::server::nginx::site::php{ 'example.com':
+      domain_www => true,
+      https => true,
+      site_php_version => '7.3',
+      site_php_development => true,
+    }
     mysql::db { 'example.com':
         user     => 'example.com',
         password => 'example.com',
