@@ -16,6 +16,7 @@ class profile::server::phpfpm (
       extensions => ['bz2', 'curl', 'gd', 'json', 'mbstring', 'mysql', 'opcache', 'readline', 'zip', 'recode', 'snmp', 'soap'],
     },
   },
+  Array $php_extensions_all_versions = ['xdebug'],
 ){
   apt::ppa { 'ppa:ondrej/php': }
 
@@ -24,5 +25,8 @@ class profile::server::phpfpm (
     $entries['extensions'].each |$php_extension| {
       @::profile::server::phpfpm::module{ "${php_version}-${php_extension}": }
     }
+  }
+  $php_extensions_all_versions.each |$php_extension| {
+    @::profile::server::phpfpm::module{ "0.0-${php_extension}": }
   }
 }

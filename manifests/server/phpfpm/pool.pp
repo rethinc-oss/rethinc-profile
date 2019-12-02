@@ -3,7 +3,8 @@ define profile::server::phpfpm::pool(
   String $pool_user = $pool_name,
   String $pool_group = $pool_name,
   String $pool_php_version = undef,
-  String $pool_conf_dir = "/etc/php/${pool_php_version}/fpm/pool.d"
+  String $pool_conf_dir = "/etc/php/${pool_php_version}/fpm/pool.d",
+  Hash $pool_php_admin_values = {},
 ){
   unless $pool_php_version =~ /(\d\.\d)/ {
     fail { "Mailformed version in pool resource[${pool_name}]: ${pool_php_version}": }
@@ -18,6 +19,7 @@ define profile::server::phpfpm::pool(
       name => $pool_name,
       user => $pool_user,
       group => $pool_group,
+      pool_php_admin_values => $pool_php_admin_values,
     }),
     notify  => Service[$pool_fpm_service]
   }

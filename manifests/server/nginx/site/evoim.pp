@@ -23,24 +23,26 @@ define profile::server::nginx::site::evoim(
   String $log_dir                     = '/var/log/nginx',
   String $site_php_version            = undef,
   Array[String] $site_php_modules     = [],
+  Boolean $site_php_development       = false,
 ){
     $vhost_name_main = "${priority}-${domain}"
 
   ::profile::server::nginx::site::php{ $title:
-    domain           => $domain,
-    domain_www       => $domain_www,
-    domain_primary   => $domain_primary,
-    priority         => $priority,
-    https            => $https,
-    http_port        => $http_port,
-    https_port       => $https_port,
-    user             => $user,
-    user_dir         => $user_dir,
-    manage_user_dir  => $manage_user_dir,
-    webroot          => $webroot,
-    log_dir          => $log_dir,
-    site_php_version => $site_php_version,
-    site_php_modules => $site_php_modules,
+    domain               => $domain,
+    domain_www           => $domain_www,
+    domain_primary       => $domain_primary,
+    priority             => $priority,
+    https                => $https,
+    http_port            => $http_port,
+    https_port           => $https_port,
+    user                 => $user,
+    user_dir             => $user_dir,
+    manage_user_dir      => $manage_user_dir,
+    webroot              => $webroot,
+    log_dir              => $log_dir,
+    site_php_version     => $site_php_version,
+    site_php_modules     => $site_php_modules,
+    site_php_development => $site_php_development,
   }
 
   nginx::resource::location { "${vhost_name_main}-index-frontend":

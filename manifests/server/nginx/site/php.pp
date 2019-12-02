@@ -23,6 +23,7 @@ define profile::server::nginx::site::php(
   String $log_dir                     = '/var/log/nginx',
   String $site_php_version            = undef,
   Array[String] $site_php_modules     = [],
+  Boolean $site_php_development       = false,
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
@@ -37,16 +38,37 @@ define profile::server::nginx::site::php(
   $vhost_name_main = "${priority}-${domain}"
   $pool_file_socket = "unix:/run/php/${domain}.sock"
 
+  $real_site_php_modules = $site_php_development ? { true => concat($site_php_modules, 'xdebug'), false => $site_php_modules }
+
   realize (::Profile::Server::Phpfpm::Instance[$site_php_version])
 
-  $site_php_modules.each |$site_module| {
-    realize ::Profile::Server::Phpfpm::Module["${site_php_version}-${site_module}"]
+  $real_site_php_modules.each |$site_module| {
+    if $site_module in $::profile::server::phpfpm::php_extensions_all_versions {
+      $module_php_version = '0.0'
+    } else {
+      $module_php_version = $site_php_version
+    }
+    realize ::Profile::Server::Phpfpm::Module["${module_php_version}-${site_module}"]
+  }
+
+  if $site_php_development {
+    $php_admin_values = {
+      "xdebug.remote_enable"        => "true",
+      "xdebug.remote_connect_back"  => "true",
+      "xdebug.remote_autostart"     => "true",      
+      "error_reporting"             => "E_ALL", 
+      "display_errors"              => "On",
+      "display_startup_errors"      => "On",
+    }
+  } else {
+    $php_admin_values = {}
   }
 
   ::profile::server::phpfpm::pool { $domain:
     pool_user => $user,
     pool_group => $user,
-    pool_php_version => '7.3',
+    pool_php_version => $site_php_version,
+    pool_php_admin_values => $php_admin_values,
   }
 
   ::profile::server::nginx::site::static{ $title:
