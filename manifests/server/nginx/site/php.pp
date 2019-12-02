@@ -60,6 +60,13 @@ define profile::server::nginx::site::php(
       "display_errors"              => "On",
       "display_startup_errors"      => "On",
     }
+
+    class { '::composer':
+      command_name => 'composer',
+      target_dir   => '/usr/local/bin',
+      auto_update  => true,
+      require => Package["php${site_php_version}-fpm"],
+    }
   } else {
     $php_admin_values = {}
   }

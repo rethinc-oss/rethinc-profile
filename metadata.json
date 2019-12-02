@@ -14,6 +14,7 @@
     { "name": "aboe-chrony", "version_requirement": "0.2.4" },
     { "name": "puppet-nginx", "version_requirement": "0.16.0" },
     { "name": "puppet-letsencrypt", "version_requirement": "4.0.0" },
+    { "name": "willdurand-composer", "version_requirement": "1.2.7" },
 
     { "name": "puppetlabs-stdlib", "version_requirement": "5.2.0" },
     { "name": "puppetlabs-translate", "version_requirement": "1.2.0" },
