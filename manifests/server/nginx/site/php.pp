@@ -43,12 +43,7 @@ define profile::server::nginx::site::php(
   realize (::Profile::Server::Phpfpm::Instance[$site_php_version])
 
   $real_site_php_modules.each |$site_module| {
-    if $site_module in $::profile::server::phpfpm::php_extensions_all_versions {
-      $module_php_version = '0.0'
-    } else {
-      $module_php_version = $site_php_version
-    }
-    realize ::Profile::Server::Phpfpm::Module["${module_php_version}-${site_module}"]
+    realize ::Profile::Server::Phpfpm::Module["${site_php_version}-${site_module}"]
   }
 
   if $site_php_development {
@@ -65,7 +60,7 @@ define profile::server::nginx::site::php(
       command_name => 'composer',
       target_dir   => '/usr/local/bin',
       auto_update  => true,
-      require => Package["php${site_php_version}-fpm"],
+      require => ::Profile::Server::Phpfpm::Instance[$site_php_version],
     }
   } else {
     $php_admin_values = {}

@@ -5,18 +5,8 @@
 # @example
 #   include profile::server::nginx
 class profile::server::phpfpm (
-  Hash $php_versions = {
-    '7.1' => {
-      extensions => ['bz2', 'curl', 'gd', 'json', 'mbstring', 'mysql', 'opcache', 'readline', 'zip', 'recode', 'snmp', 'soap'],
-    },
-    '7.2' => {
-      extensions => ['bz2', 'curl', 'gd', 'json', 'mbstring', 'mysql', 'opcache', 'readline', 'zip', 'recode', 'snmp', 'soap'],
-    },
-    '7.3' => {
-      extensions => ['bz2', 'curl', 'gd', 'json', 'mbstring', 'mysql', 'opcache', 'readline', 'zip', 'recode', 'snmp', 'soap'],
-    },
-  },
-  Array $php_extensions_all_versions = ['xdebug'],
+  Hash[String, Hash[String, Data]] $php_versions = undef,
+  Array[String]                    $php_extensions_all_versions = undef,
 ){
   apt::ppa { 'ppa:ondrej/php': }
 
@@ -25,8 +15,8 @@ class profile::server::phpfpm (
     $entries['extensions'].each |$php_extension| {
       @::profile::server::phpfpm::module{ "${php_version}-${php_extension}": }
     }
-  }
-  $php_extensions_all_versions.each |$php_extension| {
-    @::profile::server::phpfpm::module{ "0.0-${php_extension}": }
+    $php_extensions_all_versions.each |$php_extension| {
+      @::profile::server::phpfpm::module{ "${php_version}-${php_extension}": }
+    }
   }
 }
