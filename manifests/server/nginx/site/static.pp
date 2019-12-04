@@ -21,7 +21,7 @@ define profile::server::nginx::site::static(
   Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx/',
-  String $max_body_size               = undef,
+  String $max_body_size               = '10M',
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
