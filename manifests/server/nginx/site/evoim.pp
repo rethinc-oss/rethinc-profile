@@ -21,13 +21,13 @@ define profile::server::nginx::site::evoim(
   Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx',
-  String $site_php_version            = undef,
-  Array[String] $site_php_modules     = [],
-  Boolean $site_php_development       = false,
-  String $site_php_memory_limit       = '64M',
-  String $site_php_upload_limit       = '10M',
-  Integer $site_php_execution_limit   = 30,
-  String $site_php_location_match     = '~ \.php$',
+  String $php_version                 = lookup('profile::server::nginx::site::php::version', String),
+  Array[String] $php_modules          = lookup('profile::server::nginx::site::php::modules', Array[String]),
+  Boolean $php_development            = lookup('profile::server::nginx::site::php::development', Boolean),
+  String $php_memory_limit            = lookup('profile::server::nginx::site::php::memory_limit', String),
+  String $php_upload_limit            = lookup('profile::server::nginx::site::php::upload_limit', String),
+  Integer $php_execution_limit        = lookup('profile::server::nginx::site::php::execution_limit', Integer),
+  String $php_location_match          = lookup('profile::server::nginx::site::php::location_match', String),
 ){
     $vhost_name_main = "${priority}-${domain}"
 
@@ -44,13 +44,13 @@ define profile::server::nginx::site::evoim(
     manage_user_dir          => $manage_user_dir,
     webroot                  => $webroot,
     log_dir                  => $log_dir,
-    site_php_version         => $site_php_version,
-    site_php_modules         => $site_php_modules,
-    site_php_development     => $site_php_development,
-    site_php_memory_limit    => $site_php_memory_limit,
-    site_php_upload_limit    => $site_php_upload_limit,
-    site_php_execution_limit => $site_php_execution_limit, 
-    site_php_location_match  => $site_php_location_match,
+    php_version              => $php_version,
+    php_modules              => $php_modules,
+    php_development          => $php_development,
+    php_memory_limit         => $php_memory_limit,
+    php_upload_limit         => $php_upload_limit,
+    php_execution_limit      => $php_execution_limit, 
+    php_location_match       => $php_location_match,
   }
 
   nginx::resource::location { "${vhost_name_main}-index-frontend":

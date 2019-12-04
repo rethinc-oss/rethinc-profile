@@ -21,13 +21,13 @@ define profile::server::nginx::site::php(
   Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx',
-  String $site_php_version            = undef,
-  Array[String] $site_php_modules     = [],
-  Boolean $site_php_development       = false,
-  String $site_php_memory_limit       = '64M',
-  String $site_php_upload_limit       = '10M',
-  Integer $site_php_execution_limit   = 30,
-  String $site_php_location_match     = '~ \.php$',
+  String $php_version                 = lookup('profile::server::nginx::site::php::version', String),
+  Array[String] $php_modules          = lookup('profile::server::nginx::site::php::modules', Array[String]),
+  Boolean $php_development            = lookup('profile::server::nginx::site::php::development', Boolean),
+  String $php_memory_limit            = lookup('profile::server::nginx::site::php::memory_limit', String),
+  String $php_upload_limit            = lookup('profile::server::nginx::site::php::upload_limit', String),
+  Integer $php_execution_limit        = lookup('profile::server::nginx::site::php::execution_limit', Integer),
+  String $php_location_match          = lookup('profile::server::nginx::site::php::location_match', String),
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
@@ -35,29 +35,29 @@ define profile::server::nginx::site::php(
   if !defined(Class['profile::server::phpfpm']) {
     fail('You must include the phpfpm profile before declaring a vhost.')
   }
-  unless $site_php_version =~ /(\d\.\d)/ {
-    fail { "Mailformed php version: ${site_php_version}": }
+  unless $php_version =~ /(\d\.\d)/ {
+    fail { "Mailformed php version: ${php_version}": }
   }
 
   $vhost_name_main = "${priority}-${domain}"
   $pool_file_socket = "unix:/run/php/${domain}.sock"
 
-  $real_site_php_modules = $site_php_development ? { true => concat($site_php_modules, 'xdebug'), false => $site_php_modules }
+  $real_php_modules = $php_development ? { true => concat($php_modules, 'xdebug'), false => $php_modules }
 
-  realize (::Profile::Server::Phpfpm::Instance[$site_php_version])
+  realize (::Profile::Server::Phpfpm::Instance[$php_version])
 
-  $real_site_php_modules.each |$site_module| {
-    realize ::Profile::Server::Phpfpm::Module["${site_php_version}-${site_module}"]
+  $real_php_modules.each |$site_module| {
+    realize ::Profile::Server::Phpfpm::Module["${php_version}-${site_module}"]
   }
 
   $php_admin_values_base = {
-    "memory_limit"        => $site_php_memory_limit,
-    "upload_max_filesize" => $site_php_upload_limit,
-    "post_max_size"       => $site_php_upload_limit,      
-    "max_execution_time"  => $site_php_execution_limit, 
+    "memory_limit"        => $php_memory_limit,
+    "upload_max_filesize" => $php_upload_limit,
+    "post_max_size"       => $php_upload_limit,      
+    "max_execution_time"  => $php_execution_limit, 
   }
 
-  if $site_php_development {
+  if $php_development {
     $php_admin_values_devel = {
       "xdebug.remote_enable"        => "true",
       "xdebug.remote_connect_back"  => "true",
@@ -71,7 +71,7 @@ define profile::server::nginx::site::php(
       command_name => 'composer',
       target_dir   => '/usr/local/bin',
       auto_update  => true,
-      require => ::Profile::Server::Phpfpm::Instance[$site_php_version],
+      require => ::Profile::Server::Phpfpm::Instance[$php_version],
     }
   } else {
     $php_admin_values_devel = {}
@@ -82,7 +82,7 @@ define profile::server::nginx::site::php(
   ::profile::server::phpfpm::pool { $domain:
     pool_user => $user,
     pool_group => $user,
-    pool_php_version => $site_php_version,
+    pool_php_version => $php_version,
     pool_php_admin_values => $php_admin_values,
   }
 
@@ -99,7 +99,7 @@ define profile::server::nginx::site::php(
     manage_user_dir => $manage_user_dir,
     webroot         => $webroot,
     log_dir         => $log_dir,
-    max_body_size   => $site_php_upload_limit,
+    max_body_size   => $php_upload_limit,
   }
 
   nginx::resource::location{ "${vhost_name_main}-php":
@@ -108,14 +108,14 @@ define profile::server::nginx::site::php(
     priority                  => 580,
     ssl                       => $https,
     ssl_only                  => $https,
-    location                  => $site_php_location_match,
+    location                  => $php_location_match,
     index_files               => [],
     proxy                     => undef,
     fastcgi                   => $pool_file_socket,
     fastcgi_script            => undef,
     location_cfg_append       => {
       fastcgi_connect_timeout => '60s',
-      fastcgi_read_timeout    => $site_php_execution_limit,
+      fastcgi_read_timeout    => $php_execution_limit,
       fastcgi_send_timeout    => '60s',
       fastcgi_buffers         => '8 16k',
       fastcgi_buffer_size     => '32k',

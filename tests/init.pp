@@ -7,8 +7,8 @@ node default {
     ::profile::server::nginx::site::php{ 'example.com':
       domain_www => true,
       https => true,
-      site_php_version => '7.3',
-      site_php_development => true,
+      php_version => '7.3',
+      php_development => true,
     }
     mysql::db { 'example.com':
         user     => 'example.com',

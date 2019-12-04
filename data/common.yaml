@@ -2,6 +2,13 @@
 profile::server::base::timezone: Europe/Berlin
 profile::server::base::keyboard_layout: de
 profile::server::base::locale: en_US.UTF-8
+profile::server::nginx::site::php::version: null
+profile::server::nginx::site::php::modules: []
+profile::server::nginx::site::php::development: false
+profile::server::nginx::site::php::memory_limit: '64M'
+profile::server::nginx::site::php::upload_limit: '10M'
+profile::server::nginx::site::php::execution_limit: 30
+profile::server::nginx::site::php::location_match: '~ \.php$'
 profile::server::phpfpm::php_versions:
     '7.1':
       extensions:
