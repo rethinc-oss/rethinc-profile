@@ -152,6 +152,82 @@ else {
     max_body_size         => $max_body_size,
   }
 
+  # Deny all attempts to access hidden files such as .htaccess, .htpasswd, .DS_Store (Mac).
+  # Keep logging the requests to parse later (or to pass to firewall utilities such as fail2ban)
+  nginx::resource::location { "${vhost_name_main}-block-hidden":
+    ensure               => present,
+    server               => $vhost_name_main,
+    priority             => 501,
+    ssl                  => $https,
+    ssl_only             => $https,
+    location             => '~ /\.',
+    index_files          => [],
+    location_cfg_append => {
+      return     => '403',
+      error_page => '403 /403_error.html',
+    },
+  }
+
+  # Don't polute logs with messages about /favicon.ico
+  nginx::resource::location { "${vhost_name_main}-favicon":
+    ensure               => present,
+    server               => $vhost_name_main,
+    priority             => 502,
+    ssl                  => $https,
+    ssl_only             => $https,
+    location             => '/favicon.ico',
+    index_files          => [],
+    location_cfg_append => {
+      log_not_found => 'off',
+      access_log    => 'off',
+    },
+  }
+
+  # Don't polute logs with messages about /favicon.ico
+  nginx::resource::location { "${vhost_name_main}-robots":
+    ensure               => present,
+    server               => $vhost_name_main,
+    priority             => 503,
+    ssl                  => $https,
+    ssl_only             => $https,
+    location             => '/robots.txt',
+    index_files          => [],
+    location_cfg_append => {
+      log_not_found => 'off',
+      access_log    => 'off',
+    },
+  }
+
+  # Don't polute logs with messages about /apple-touch-icon-precomposed.png
+  nginx::resource::location { "${vhost_name_main}-apple-touch-icon1":
+    ensure               => present,
+    server               => $vhost_name_main,
+    priority             => 504,
+    ssl                  => $https,
+    ssl_only             => $https,
+    location             => '/apple-touch-icon-precomposed.png',
+    index_files          => [],
+    location_cfg_append => {
+      log_not_found => 'off',
+      access_log    => 'off',
+    },
+  }
+
+  # Don't polute logs with messages about /apple-touch-icon.png
+  nginx::resource::location { "${vhost_name_main}-apple-touch-icon2":
+    ensure               => present,
+    server               => $vhost_name_main,
+    priority             => 505,
+    ssl                  => $https,
+    ssl_only             => $https,
+    location             => '/apple-touch-icon.png',
+    index_files          => [],
+    location_cfg_append => {
+      log_not_found => 'off',
+      access_log    => 'off',
+    },
+  }
+
   #
   # Letsencrypt certificate generation
   #
