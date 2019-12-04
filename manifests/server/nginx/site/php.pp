@@ -26,7 +26,8 @@ define profile::server::nginx::site::php(
   Boolean $site_php_development       = false,
   String $site_php_memory_limit       = '64M',
   String $site_php_upload_limit       = '10M',
-  Integer $site_php_execution_limit   = 30, 
+  Integer $site_php_execution_limit   = 30,
+  String $site_php_location_match     = '~ \.php$',
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
@@ -107,7 +108,7 @@ define profile::server::nginx::site::php(
     priority                  => 580,
     ssl                       => $https,
     ssl_only                  => $https,
-    location                  => '~ \.php$',
+    location                  => $site_php_location_match,
     index_files               => [],
     proxy                     => undef,
     fastcgi                   => $pool_file_socket,

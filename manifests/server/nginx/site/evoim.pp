@@ -26,7 +26,8 @@ define profile::server::nginx::site::evoim(
   Boolean $site_php_development       = false,
   String $site_php_memory_limit       = '64M',
   String $site_php_upload_limit       = '10M',
-  Integer $site_php_execution_limit   = 30, 
+  Integer $site_php_execution_limit   = 30,
+  String $site_php_location_match     = '~ \.php$',
 ){
     $vhost_name_main = "${priority}-${domain}"
 
@@ -49,6 +50,7 @@ define profile::server::nginx::site::evoim(
     site_php_memory_limit    => $site_php_memory_limit,
     site_php_upload_limit    => $site_php_upload_limit,
     site_php_execution_limit => $site_php_execution_limit, 
+    site_php_location_match  => $site_php_location_match,
   }
 
   nginx::resource::location { "${vhost_name_main}-index-frontend":
