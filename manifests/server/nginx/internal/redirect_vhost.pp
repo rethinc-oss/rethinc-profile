@@ -19,6 +19,7 @@ define profile::server::nginx::internal::redirect_vhost(
     webroot               => $webroot,
     access_log            => $access_log,
     error_log             => $error_log,
+    max_body_size         => '1M',
   }
 
   nginx::resource::location{ "${vhost}-token-directory":

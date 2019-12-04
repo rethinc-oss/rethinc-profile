@@ -24,6 +24,9 @@ define profile::server::nginx::site::php(
   String $site_php_version            = undef,
   Array[String] $site_php_modules     = [],
   Boolean $site_php_development       = false,
+  String $site_php_memory_limit       = '64M',
+  String $site_php_upload_limit       = '10M',
+  Integer $site_php_execution_limit   = 30, 
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
@@ -46,8 +49,15 @@ define profile::server::nginx::site::php(
     realize ::Profile::Server::Phpfpm::Module["${site_php_version}-${site_module}"]
   }
 
+  $php_admin_values_base = {
+    "memory_limit"        => $site_php_memory_limit,
+    "upload_max_filesize" => $site_php_upload_limit,
+    "post_max_size"       => $site_php_upload_limit,      
+    "max_execution_time"  => $site_php_execution_limit, 
+  }
+
   if $site_php_development {
-    $php_admin_values = {
+    $php_admin_values_devel = {
       "xdebug.remote_enable"        => "true",
       "xdebug.remote_connect_back"  => "true",
       "xdebug.remote_autostart"     => "true",      
@@ -63,8 +73,10 @@ define profile::server::nginx::site::php(
       require => ::Profile::Server::Phpfpm::Instance[$site_php_version],
     }
   } else {
-    $php_admin_values = {}
+    $php_admin_values_devel = {}
   }
+
+  $php_admin_values = $php_admin_values_base + $php_admin_values_devel
 
   ::profile::server::phpfpm::pool { $domain:
     pool_user => $user,
@@ -86,6 +98,7 @@ define profile::server::nginx::site::php(
     manage_user_dir => $manage_user_dir,
     webroot         => $webroot,
     log_dir         => $log_dir,
+    max_body_size   => $site_php_upload_limit,
   }
 
   nginx::resource::location{ "${vhost_name_main}-php":
@@ -100,9 +113,11 @@ define profile::server::nginx::site::php(
     fastcgi                   => $pool_file_socket,
     fastcgi_script            => undef,
     location_cfg_append       => {
-      fastcgi_connect_timeout => '3m',
-      fastcgi_read_timeout    => '3m',
-      fastcgi_send_timeout    => '3m',
+      fastcgi_connect_timeout => '60s',
+      fastcgi_read_timeout    => $site_php_execution_limit,
+      fastcgi_send_timeout    => '60s',
+      fastcgi_buffers         => '8 16k',
+      fastcgi_buffer_size     => '32k',
     },
     try_files                 => ['$uri', '=404'],
   }

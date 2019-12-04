@@ -8,6 +8,7 @@ define profile::server::nginx::internal::main_vhost(
   String $webroot                         = undef,
   String $access_log                      = undef,
   String $error_log                       = undef,
+  String $max_body_size                   = undef,
 ){
   nginx::resource::server{ $vhost:
     use_default_location      => false,
@@ -43,5 +44,7 @@ define profile::server::nginx::internal::main_vhost(
       true  => { 'Strict-Transport-Security' => 'max-age=15768000' },
       false => undef,
     },
+
+    client_max_body_size      => $max_body_size,
   }
 }

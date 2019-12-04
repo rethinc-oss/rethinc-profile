@@ -21,6 +21,7 @@ define profile::server::nginx::site::static(
   Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx/',
+  String $max_body_size               = undef,
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
@@ -148,6 +149,7 @@ else {
     access_log            => $main_access_log,
     error_log             => $main_error_log,
     require               => $https ? { true => Letsencrypt::Certonly[$real_domain], false => [] }, # lint:ignore:selector_inside_resource
+    max_body_size         => $max_body_size,
   }
 
   #
