@@ -46,5 +46,9 @@ define profile::server::nginx::internal::main_vhost(
     },
 
     client_max_body_size      => $max_body_size,
+
+    server_cfg_prepend => {
+      server_tokens => 'off',
+    },
   }
 }

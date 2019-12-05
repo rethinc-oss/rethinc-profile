@@ -53,8 +53,9 @@ define profile::server::nginx::site::php(
   $php_admin_values_base = {
     "memory_limit"        => $php_memory_limit,
     "upload_max_filesize" => $php_upload_limit,
-    "post_max_size"       => $php_upload_limit,      
-    "max_execution_time"  => $php_execution_limit, 
+    "post_max_size"       => $php_upload_limit,
+    "max_execution_time"  => $php_execution_limit,
+    "expose_php"          => 'Off'
   }
 
   if $php_development {
