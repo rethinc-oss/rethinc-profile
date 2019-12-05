@@ -1,6 +1,6 @@
 define profile::server::phpfpm::module(
 ){
-  $versionless_modules = lookup('profile::server::phpfpm::php_extensions_all_versions', Array[String])
+  $modules = lookup('profile::server::phpfpm::modules', Hash[String, Array[String]])
 
   if $title =~ /(\d\.\d)-(\w+)/ {
     $php_version    = "${1}"
@@ -9,7 +9,7 @@ define profile::server::phpfpm::module(
     fail { "Mailformed title: ${title}": }
   }
 
-  if ($extension_name in $versionless_modules) {
+  if ('*' in $modules[$extension_name]) {
     $extension_php_version = ''
   } else {
     $extension_php_version = $php_version

@@ -5,18 +5,24 @@
 # @example
 #   include profile::server::nginx
 class profile::server::phpfpm (
-  Hash[String, Hash[String, Data]] $php_versions = undef,
-  Array[String]                    $php_extensions_all_versions = undef,
+  Array[String] $versions                     = undef,
+  Hash[String, Array[String]] $modules = undef,
 ){
   apt::ppa { 'ppa:ondrej/php': }
 
-  $php_versions.each |$php_version, $entries| {
-    @::profile::server::phpfpm::instance{ $php_version: }
-    $entries['extensions'].each |$php_extension| {
-      @::profile::server::phpfpm::module{ "${php_version}-${php_extension}": }
-    }
-    $php_extensions_all_versions.each |$php_extension| {
-      @::profile::server::phpfpm::module{ "${php_version}-${php_extension}": }
+  $versions.each |$cur_version| {
+    @::profile::server::phpfpm::instance{ $cur_version: }
+  }
+
+  $modules.each |$cur_module, $cur_module_versions| {
+    $cur_module_versions.each |$cur_module_version| {
+      if $cur_module_version == '*' {
+        $versions.each |$version| {
+          @::profile::server::phpfpm::module{ "${version}-${cur_module}": }
+        }
+      } else {
+        @::profile::server::phpfpm::module{ "${cur_module_version}-${cur_module}": }
+      }
     }
   }
 }

@@ -9,49 +9,35 @@ profile::server::nginx::site::php::memory_limit: '64M'
 profile::server::nginx::site::php::upload_limit: '10M'
 profile::server::nginx::site::php::execution_limit: 30
 profile::server::nginx::site::php::location_match: '~ \.php$'
-profile::server::phpfpm::php_versions:
-    '7.1':
-      extensions:
-        - bz2
-        - curl
-        - gd
-        - json
-        - mbstring
-        - mysql
-        - opcache
-        - readline
-        - zip
-        - recode
-        - snmp
-        - soap        
-    '7.2':
-      extensions:
-        - bz2
-        - curl
-        - gd
-        - json
-        - mbstring
-        - mysql
-        - opcache
-        - readline
-        - zip
-        - recode
-        - snmp
-        - soap
-    '7.3':
-      extensions:
-        - bz2
-        - curl
-        - gd
-        - json
-        - mbstring
-        - mysql
-        - opcache
-        - readline
-        - zip
-        - recode
-        - snmp
-        - soap
-profile::server::phpfpm::php_extensions_all_versions:
-  - xdebug
-  
+profile::server::phpfpm::modules:
+  bcmath: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  bz2: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  curl: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  dba: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  enchant: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  gmp: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  imap: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  interbase: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  intl: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  json: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  ldap: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  mbstring: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  mysql: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  odbc: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  opcache: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  pgsql: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  pspell: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  readline: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  recode: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  snmp: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  soap: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  sqlite3: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  sybase: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  tidy: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  xml: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  xmlrpc: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  xsl: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  zip: ['7.0', '7.1', '7.2', '7.3', '7.4']
+  xdebug: ['*']
+  imagick: ['*']
+profile::server::phpfpm::versions: ['7.0', '7.1', '7.2', '7.3', '7.4']
