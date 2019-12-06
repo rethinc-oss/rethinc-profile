@@ -8,7 +8,7 @@
 #   [*domain_primary*]             - Which domain to redirect to (base|www), if $domain_www is enabled; default: www
 #   [*https*]                      - BOOL value to enable listening on port 443; default: true
 #
-define profile::server::nginx::site::evoim(
+define profile::server::website::php::evoim(
   String $domain                      = $title,
   Boolean $domain_www                 = true,
   Enum['base', 'www'] $domain_primary = 'www',

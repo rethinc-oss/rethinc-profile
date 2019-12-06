@@ -4,7 +4,7 @@ node default {
     include ::profile::server::pebble
     include ::profile::server::nginx
     include ::profile::server::phpfpm
-    ::profile::server::nginx::site::php{ 'example.com':
+    ::profile::server::website::php::evoim{ 'example.com':
       domain_www => true,
       https => true,
       php_version => '7.3',
