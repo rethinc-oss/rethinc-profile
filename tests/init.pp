@@ -9,6 +9,7 @@ node default {
       https => true,
       php_version => '7.3',
       php_development => true,
+      php_modules => ['imagick'],
     }
     mysql::db { 'example.com':
         user     => 'example.com',
