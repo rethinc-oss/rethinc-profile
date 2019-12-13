@@ -50,6 +50,13 @@ define profile::server::nginx::site::php(
     realize ::Profile::Server::Phpfpm::Module["${php_version}-${site_module}"]
   }
 
+  class { '::composer':
+    command_name => 'composer',
+    target_dir   => '/usr/local/bin',
+    auto_update  => true,
+    require => ::Profile::Server::Phpfpm::Instance[$php_version],
+  }
+
   $php_admin_values_base = {
     "memory_limit"        => $php_memory_limit,
     "upload_max_filesize" => $php_upload_limit,
@@ -66,13 +73,6 @@ define profile::server::nginx::site::php(
       "error_reporting"             => "E_ALL", 
       "display_errors"              => "On",
       "display_startup_errors"      => "On",
-    }
-
-    class { '::composer':
-      command_name => 'composer',
-      target_dir   => '/usr/local/bin',
-      auto_update  => true,
-      require => ::Profile::Server::Phpfpm::Instance[$php_version],
     }
   } else {
     $php_admin_values_devel = {}
