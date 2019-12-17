@@ -65,6 +65,6 @@ class profile::server::pebble {
     source  => 'puppet:///modules/profile/pebble/pebble.service',
     enable  => true,
     active  => true,
-    require => [File['/opt/pebble/config.json'], File['/opt/pebble/cert.pem'], File['/opt/pebble/key.pem'], File['/opt/pebble/minica.pem']],
+    require => [File['/opt/pebble/config.json'], File['/opt/pebble/cert.pem'], File['/opt/pebble/key.pem'], File['/opt/pebble/minica.pem'], Exec['install_pebble']],
   }
 }
