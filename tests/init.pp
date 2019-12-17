@@ -1,20 +1,26 @@
 node default {
-    include ::profile::server::base
-    include ::profile::server::mysql
-    include ::profile::server::pebble
-    include ::profile::server::nginx
-    include ::profile::server::phpfpm
-    ::profile::server::website::php::evoim{ 'example.com':
-      domain_www => true,
-      https => true,
-      php_version => '7.3',
-      php_development => true,
-      php_modules => ['imagick'],
-    }
-    mysql::db { 'example.com':
-        user     => 'example.com',
-        password => 'example.com',
-        host     => 'localhost',
-        grant    => ['ALL'],
-    }
+  include ::profile::server::base
+  include ::profile::server::mysql
+  include ::profile::server::pebble
+  class { '::profile::server::nginx':
+    acme_server => 'https://localhost:14000/dir',
+    acme_cacert => '/opt/pebble/minica.pem',
+    acme_email => 'dummy@local.dev',
+    domain_suffix => 'localdev',
+  }
+  include ::profile::server::phpfpm
+
+  ::profile::server::website::php::laravel{ 'example':
+    domain_www => true,
+    https => true,
+    php_version => '7.3',
+    php_development => true,
+    php_modules => ['bcmath', 'json', 'mbstring', 'xml', 'mysql', 'tokenizer'],
+  }
+  ::mysql::db { 'example':
+      user     => 'example',
+      password => 'example',
+      host     => '%',
+      grant    => ['ALL'],
+  }
 }
