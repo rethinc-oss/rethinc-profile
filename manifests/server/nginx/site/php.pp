@@ -57,6 +57,11 @@ define profile::server::nginx::site::php(
     require => ::Profile::Server::Phpfpm::Instance[$php_version],
   }
 
+    class { '::nodejs':
+    repo_url_suffix => '13.x',
+    require => Class['::composer'],
+  }
+
   $php_admin_values_base = {
     "memory_limit"        => $php_memory_limit,
     "upload_max_filesize" => $php_upload_limit,
