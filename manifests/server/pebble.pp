@@ -1,13 +1,6 @@
 class profile::server::pebble {
   include ::stdlib
 
-  apt::ppa { 'ppa:longsleep/golang-backports': }
-
-  package{ 'golang-go':
-    ensure  => present,
-    require => [ Class['apt::update'], Apt::Ppa['ppa:longsleep/golang-backports'] ],
-  }
-
   exec { 'download_pebble':
     command     => '/usr/bin/go get -u github.com/letsencrypt/pebble/...',
     environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],

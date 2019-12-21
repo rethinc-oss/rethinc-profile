@@ -1,6 +1,7 @@
 node default {
   include ::profile::server::base
   include ::profile::server::mysql
+  include ::profile::server::golang
   include ::profile::server::pebble
   class { '::profile::server::nginx':
     acme_server => 'https://localhost:14000/dir',
