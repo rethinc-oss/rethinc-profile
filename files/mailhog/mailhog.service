@@ -1,0 +1,12 @@
+[Unit]
+Description=Webhog Mail-DummyServer
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/go/bin/MailHog -hostname mailhog.localdev -api-bind-addr 0.0.0.0:8025 -ui-bind-addr 0.0.0.0:8025 -smtp-bind-addr 0.0.0.0:1025 -storage memory
+Environment=""
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

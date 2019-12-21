@@ -3,6 +3,7 @@ node default {
   include ::profile::server::mysql
   include ::profile::server::golang
   include ::profile::server::pebble
+  include ::profile::server::mailhog
   class { '::profile::server::nginx':
     acme_server => 'https://localhost:14000/dir',
     acme_cacert => '/opt/pebble/minica.pem',
