@@ -10,10 +10,11 @@
     { "name": "puppetlabs-mysql", "version_requirement": "10.2.1" },
     { "name": "saz-locales", "version_requirement": "2.5.1" },
     { "name": "saz-timezone", "version_requirement": "5.1.1" },
+    { "name": "puppetlabs-sshkeys_core", "version_requirement": "1.0.3" },
     { "name": "camptocamp-systemd", "version_requirement": "2.2.0" },
     { "name": "aboe-chrony", "version_requirement": "0.2.4" },
     { "name": "puppet-nginx", "version_requirement": "0.16.0" },
-    { "name": "puppet-letsencrypt", "version_requirement": "4.0.0" },
+    { "name": "puppet-letsencrypt", "version_requirement": "5.0.0" },
     { "name": "puppet-nodejs", "version_requirement": "7.0.1" },
     { "name": "willdurand-composer", "version_requirement": "1.2.7" },
 
