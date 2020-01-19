@@ -113,6 +113,7 @@ class profile::server::nginx (
       email  => $acme_email,
       server => $acme_server,
     },
+    cron_scripts_path => '/var/letsencrypt', # Specify this manually, because automatic detection fails with Bolt
     require        => [ Class['apt::update'], Apt::Ppa['ppa:certbot/certbot'] ],
   }
 }
