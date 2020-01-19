@@ -63,7 +63,7 @@ class profile::server::base (
     password   => Sensitive($pw),
   }
 
-  $key_definitions = lookup('profile::ssh::keys')
+  $key_definitions = lookup('ssh::keys')
 
   $management_user_public_keys.each |String $for_user| {
     if ($key_definitions[$for_user] == undef) {
