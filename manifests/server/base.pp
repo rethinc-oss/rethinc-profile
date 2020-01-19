@@ -8,6 +8,10 @@ class profile::server::base (
   String $timezone,
   String $keyboard_layout,
   String $locale,
+  String $management_user_name,
+  String $management_user_login,
+  String $management_user_password,
+  Array[String] $management_user_public_keys,
   ){
 
   include ::stdlib
@@ -47,6 +51,32 @@ class profile::server::base (
     ensure   => false,
     provider => 'systemd',
     enable   => false,
+  }
+
+  $salt = fqdn_rand_string(16, undef, "User[${management_user_login}]")
+  $pw = pw_hash($management_user_password, 'SHA-512',$salt)
+  user { $management_user_login:
+    ensure     => present,
+    groups     => ['adm', 'cdrom', 'dip', 'plugdev', 'lpadmin', 'sambashare'],
+    comment    => $management_user_name,
+    managehome => true,
+    password   => Sensitive($pw),
+  }
+
+  $key_definitions = lookup('profile::ssh::keys')
+
+  $management_user_public_keys.each |String $for_user| {
+    if ($key_definitions[$for_user] == undef) {
+      warn("Key for ${key_definitions[$for_user]} not found!")
+    } else {
+      ssh_authorized_key { $for_user:
+        ensure => present,
+        user   => $management_user_login,
+        type   => $key_definitions[$for_user]['type'],
+        key    => $key_definitions[$for_user]['key'],
+        name   => $key_definitions[$for_user]['comment'],
+      }
+    }
   }
 
   class { '::chrony':
