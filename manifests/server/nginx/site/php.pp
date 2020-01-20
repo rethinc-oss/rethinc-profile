@@ -21,6 +21,7 @@ define profile::server::nginx::site::php(
   Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx',
+  Array[Hash] $cronjobs               = [],
   String $php_version                 = lookup('profile::server::nginx::site::php::version', String),
   Array[String] $php_modules          = lookup('profile::server::nginx::site::php::modules', Array[String]),
   Boolean $php_development            = lookup('profile::server::nginx::site::php::development', Boolean),
@@ -105,6 +106,7 @@ define profile::server::nginx::site::php(
     manage_user_dir => $manage_user_dir,
     webroot         => $webroot,
     log_dir         => $log_dir,
+    cronjobs        => $cronjobs,
     max_body_size   => $php_upload_limit,
   }
 

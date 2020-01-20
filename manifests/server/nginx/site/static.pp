@@ -89,6 +89,18 @@ else {
     require => User[$user]
   }
 
+  $cronjobs.each |Hash $job| {
+    cron { $job['name']:
+      user     => $user,
+      command  => "test -x ${user_dir}/${job['command']} && ( cd / && ${user_dir}/${job['command']} )",
+      minute   => $job['minute'],
+      hour     => $job['hour'],
+      month    => $job['month'],
+      monthday => $job['monthday'],
+      weekday  => $job['weekday'],
+    }
+  }
+
   #
   # Redirecting HTTP-VHost
   #
