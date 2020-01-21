@@ -143,7 +143,7 @@ else {
   } else {
     nginx::resource::server{ $vhost_name_redirect_https:
       ensure => absent,
-      before => Exec['nginx_reload'],
+      before => $https ? { true => Exec['nginx_reload'], false => []},
     }
   }
 
