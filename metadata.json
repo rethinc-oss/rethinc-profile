@@ -10,6 +10,7 @@
     { "name": "puppetlabs-mysql", "version_requirement": "10.2.1" },
     { "name": "saz-locales", "version_requirement": "2.5.1" },
     { "name": "saz-timezone", "version_requirement": "5.1.1" },
+    { "name": "saz-ssh", "version_requirement": "6.0.0" },
     { "name": "puppetlabs-sshkeys_core", "version_requirement": "1.0.3" },
     { "name": "puppetlabs-cron_core", "version_requirement": "1.0.3" },
     { "name": "camptocamp-systemd", "version_requirement": "2.2.0" },

@@ -11,7 +11,7 @@ class profile::server::base (
   String $management_user_name,
   String $management_user_login,
   String $management_user_password,
-  Array[String] $management_user_public_keys,
+  Array[String] $management_user_public_keys = [],
   ){
 
   include ::stdlib
@@ -57,13 +57,14 @@ class profile::server::base (
   $pw = pw_hash($management_user_password, 'SHA-512',$salt)
   user { $management_user_login:
     ensure     => present,
-    groups     => ['adm', 'cdrom', 'dip', 'plugdev', 'lpadmin', 'sambashare'],
+    groups     => ['adm', 'cdrom', 'dip', 'plugdev', 'lpadmin', 'sambashare', 'ssh'],
     comment    => $management_user_name,
     managehome => true,
     password   => Sensitive($pw),
+    require    => Group['ssh'],
   }
 
-  $key_definitions = lookup('ssh::keys')
+  $key_definitions = lookup('ssh::keys', Array[String], undef, [])
 
   $management_user_public_keys.each |String $for_user| {
     if ($key_definitions[$for_user] == undef) {

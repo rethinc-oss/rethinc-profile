@@ -2,6 +2,10 @@
 profile::server::base::timezone: Europe/Berlin
 profile::server::base::keyboard_layout: de
 profile::server::base::locale: en_US.UTF-8
+profile::server::ssh::password_authentication: true
+profile::server::ssh::listen_port: 22
+profile::server::ssh::allowed_group: ssh
+profile::server::ssh::sftp_only_enabled: false
 profile::server::nginx::site::php::version: null
 profile::server::nginx::site::php::modules: []
 profile::server::nginx::site::php::development: false
