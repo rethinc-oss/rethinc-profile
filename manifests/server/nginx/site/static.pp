@@ -19,6 +19,7 @@ define profile::server::nginx::site::static(
   String $user                        = $domain,
   String $user_dir                    = "/var/www/${domain}",
   Optional[String] $user_addon_group  = lookup('profile::server::nginx::site::static::user_addon_group', Optional[String], undef, undef),
+  Optional[Array[String]] $user_public_keys = lookup('profile::server::nginx::site::static::user_public_keys', Optional[Array[String]], undef, undef),
   Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx/',
@@ -88,10 +89,28 @@ else {
 
   user { $user:
     *       => $create_user_params,
-    require => [Group[$user_addon_groups]],
+    require => [Group[$user_addon_group]],
   }
 
   User <| title == www-data |> { groups +> $user }
+
+  $key_definitions = lookup('ssh::keys', Array[String], undef, [])
+
+  if ($user_public_keys != undef) {
+    $user_public_keys.each |String $for_user| {
+      if ($key_definitions[$for_user] == undef) {
+        warn("Key for ${key_definitions[$for_user]} not found!")
+      } else {
+        ssh_authorized_key { $for_user:
+          ensure => present,
+          user   => $user,
+          type   => $key_definitions[$for_user]['type'],
+          key    => $key_definitions[$for_user]['key'],
+          name   => $key_definitions[$for_user]['comment'],
+        }
+      }
+    }
+  }
 
   file { $webroot:
     ensure  => 'directory',
