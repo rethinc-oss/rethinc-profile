@@ -94,7 +94,7 @@ else {
 
   User <| title == www-data |> { groups +> $user }
 
-  $key_definitions = lookup('ssh::keys', Array[String], undef, [])
+  $key_definitions = lookup('profile::server::ssh::keys', Array[String], undef, [])
 
   if ($user_public_keys != undef) {
     $user_public_keys.each |String $for_user| {

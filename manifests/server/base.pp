@@ -113,7 +113,7 @@ class profile::server::base (
     require    => [Group[$management_user_addon_groups]],
   }
 
-  $key_definitions = lookup('ssh::keys', Array[String], undef, [])
+  $key_definitions = lookup('profile::server::ssh::keys', Array[String], undef, [])
 
   if ($management_user_public_keys != undef) {
     $management_user_public_keys.each |String $for_user| {
