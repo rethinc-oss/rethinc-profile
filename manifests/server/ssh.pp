@@ -12,11 +12,6 @@ class profile::server::ssh (
   Optional[String] $sftp_only_group = undef,
   Optional[String] $sftp_only_chroot = undef,
 ){
-
-  group { 'ssh':
-    ensure => present,
-  }
-
   if ($password_authentication) {
     $opt_password_auth = 'yes'
     $opt_auth_methods = 'publickey password'

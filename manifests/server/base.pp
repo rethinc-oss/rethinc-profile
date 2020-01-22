@@ -11,7 +11,8 @@ class profile::server::base (
   String $management_user_name,
   String $management_user_login,
   String $management_user_password,
-  Array[String] $management_user_public_keys = [],
+  Optional[Array[String]] $management_user_addon_groups = undef,
+  Optional[Array[String]] $management_user_public_keys = undef,
   ){
 
   include ::stdlib
@@ -53,29 +54,37 @@ class profile::server::base (
     enable   => false,
   }
 
+  group { $management_user_addon_groups:
+    ensure => present,
+  }
+
   $salt = fqdn_rand_string(16, undef, "User[${management_user_login}]")
-  $pw = pw_hash($management_user_password, 'SHA-512',$salt)
+  $opt_management_user_pw = pw_hash($management_user_password, 'SHA-512',$salt)
+
+  $opt_management_user_groups = ['adm', 'cdrom', 'dip', 'plugdev', 'lpadmin', 'sambashare'] + $management_user_addon_groups
   user { $management_user_login:
     ensure     => present,
-    groups     => ['adm', 'cdrom', 'dip', 'plugdev', 'lpadmin', 'sambashare', 'ssh'],
+    groups     => $opt_management_user_groups,
     comment    => $management_user_name,
     managehome => true,
-    password   => Sensitive($pw),
-    require    => Group['ssh'],
+    password   => Sensitive($opt_management_user_pw),
+    require    => [Group[$management_user_addon_groups]],
   }
 
   $key_definitions = lookup('ssh::keys', Array[String], undef, [])
 
-  $management_user_public_keys.each |String $for_user| {
-    if ($key_definitions[$for_user] == undef) {
-      warn("Key for ${key_definitions[$for_user]} not found!")
-    } else {
-      ssh_authorized_key { $for_user:
-        ensure => present,
-        user   => $management_user_login,
-        type   => $key_definitions[$for_user]['type'],
-        key    => $key_definitions[$for_user]['key'],
-        name   => $key_definitions[$for_user]['comment'],
+  if ($management_user_public_keys != undef) {
+    $management_user_public_keys.each |String $for_user| {
+      if ($key_definitions[$for_user] == undef) {
+        warn("Key for ${key_definitions[$for_user]} not found!")
+      } else {
+        ssh_authorized_key { $for_user:
+          ensure => present,
+          user   => $management_user_login,
+          type   => $key_definitions[$for_user]['type'],
+          key    => $key_definitions[$for_user]['key'],
+          name   => $key_definitions[$for_user]['comment'],
+        }
       }
     }
   }

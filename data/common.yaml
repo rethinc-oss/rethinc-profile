@@ -1,10 +1,15 @@
 ---
+profile::server::management_group: operator
 profile::server::base::timezone: Europe/Berlin
 profile::server::base::keyboard_layout: de
 profile::server::base::locale: en_US.UTF-8
+profile::server::base::management_user_name: System Operator
+profile::server::base::management_user_login: sysop
+profile::server::base::management_user_addon_groups:
+  - "%{lookup('profile::server::management_group')}"
 profile::server::ssh::password_authentication: true
 profile::server::ssh::listen_port: 22
-profile::server::ssh::allowed_group: ssh
+profile::server::ssh::allowed_group: "%{lookup('profile::server::management_group')}"
 profile::server::ssh::sftp_only_enabled: false
 profile::server::nginx::site::php::version: null
 profile::server::nginx::site::php::modules: []
