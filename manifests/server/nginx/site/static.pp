@@ -18,9 +18,11 @@ define profile::server::nginx::site::static(
   Integer $https_port                 = 443,
   String $user                        = $domain,
   String $user_dir                    = "/var/www/${domain}",
+  Optional[String] $user_addon_group  = lookup('profile::server::nginx::site::static::user_addon_group', Optional[String], undef, undef),
   Boolean $manage_user_dir            = true,
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx/',
+  Array[Hash] $cronjobs               = [],
   String $max_body_size               = '10M',
 ){
   if !defined(Class['profile::server::nginx']) {
@@ -61,22 +63,32 @@ else {
   $https_certificate_key      = "/etc/letsencrypt/live/${real_domain}/privkey.pem"
 
   # define the user account for the webpage
+
   if $manage_user_dir {
     $create_user_params = {
       ensure     => 'present',
       home       => $user_dir,
+      groups     => $user_addon_group,
       managehome => true,
       before     => User['www-data'],
     }
   } else {
     $create_user_params = {
       ensure     => 'present',
+      groups     => $user_addon_group,
       before     => User['www-data'],
     }
   }
 
+  if ($user_addon_group != undef) {
+    group { $user_addon_group:
+      ensure => present,
+    }
+  }
+
   user { $user:
-    * => $create_user_params,
+    *       => $create_user_params,
+    require => [Group[$user_addon_groups]],
   }
 
   User <| title == www-data |> { groups +> $user }
