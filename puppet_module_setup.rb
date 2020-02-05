@@ -30,7 +30,7 @@ git_cmd = '/usr/bin/git'
 `bash -c "test ! -f #{git_cmd} && sudo apt update && sudo apt -y install git"`
 `bash -c "test ! -f #{librarian_puppet_cmd} && sudo /opt/puppetlabs/puppet/bin/gem install --no-ri --no-rdoc librarian-puppet"`
 
-`bash -c "cd #{moduledir}/.. && #{librarian_puppet_cmd} clean && rm Puppetfile*"`
+`bash -c "cd #{moduledir}/.. && #{librarian_puppet_cmd} clean && rm -f Puppetfile*"`
 `bash -c "test ! -f #{moduledir}/../metadata.json && ln -s /vagrant/metadata.json #{moduledir}/../"`
 `sudo bash -c "cd #{moduledir}/.. && #{librarian_puppet_cmd} install --verbose"`
 
