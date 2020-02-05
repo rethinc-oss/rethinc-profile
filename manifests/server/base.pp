@@ -59,6 +59,8 @@ class profile::server::base (
 
   include ::stdlib
 
+  ### APT & System-Update Configuration
+
   # Ensure that the APT package index is uptodate
   class { '::profile::server::bootstrap':
     stage => setup,
@@ -69,6 +71,8 @@ class profile::server::base (
       frequency => 'daily',
     },
   }
+
+  ### Configure the core location and language settings
 
   class { 'locales':
     default_locale => $locale,
@@ -85,6 +89,8 @@ class profile::server::base (
     require => Package[$console_data_pkgs]
   }
 
+  ### Configure the timezone and set up time synchronization via NTP
+
   class { 'timezone':
     timezone => $timezone,
     hwutc    => true,
@@ -95,6 +101,19 @@ class profile::server::base (
     provider => 'systemd',
     enable   => false,
   }
+
+  class { '::chrony':
+    servers          => {
+      'ptbtime1.ptb.de' => ['iburst'],
+      'ptbtime2.ptb.de' => ['iburst'],
+      'ptbtime3.ptb.de' => ['iburst'],
+      'de.pool.ntp.org' => ['iburst'],
+    },
+    makestep_updates => -1,
+    makestep_seconds => 1,
+  }
+
+  ### Create the system-management user
 
   group { $management_user_addon_groups:
     ensure => present,
@@ -131,16 +150,7 @@ class profile::server::base (
     }
   }
 
-  class { '::chrony':
-    servers          => {
-      'ptbtime1.ptb.de' => ['iburst'],
-      'ptbtime2.ptb.de' => ['iburst'],
-      'ptbtime3.ptb.de' => ['iburst'],
-      'de.pool.ntp.org' => ['iburst'],
-    },
-    makestep_updates => -1,
-    makestep_seconds => 1,
-  }
+  ### Install core utility packages
 
   $utilities = ['htop', 'nano', 'mc', 'dnsutils', 'bash-completion', 'software-properties-common', 'screen', 'psmisc', 'net-tools']
   package { $utilities: ensure => installed }
