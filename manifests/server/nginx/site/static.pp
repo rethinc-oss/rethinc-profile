@@ -30,13 +30,7 @@ define profile::server::nginx::site::static(
     fail('You must include the nginx profile before declaring a vhost.')
   }
 
-#  $real_domain                = "${domain}.${::profile::server::nginx::domain_suffix}"
-if $::profile::server::nginx::domain_suffix == "" {
-  $real_domain = "${domain}"
-}
-else {
-  $real_domain = "${domain}.${::profile::server::nginx::domain_suffix}"
-}
+  $real_domain = $domain
 
   $primary_domain             = ($domain_www and $domain_primary == www) ? { true => "www.${real_domain}", false => $real_domain }
   $secondary_domain           = $domain_www ? { true => $domain_primary ? { www => $real_domain, base => "www.${real_domain}"}, false => undef }
@@ -87,9 +81,13 @@ else {
     }
   }
 
-  user { $user:
-    *       => $create_user_params,
-    require => [Group[$user_addon_group]],
+  #Can happen when provisioning a local development vagrant machine
+  #TODO: Investigate if there is a better solution
+  if !defined(User[$user]) {
+    user { $user:
+      *       => $create_user_params,
+      require => [Group[$user_addon_group]],
+    }
   }
 
   User <| title == www-data |> { groups +> $user }

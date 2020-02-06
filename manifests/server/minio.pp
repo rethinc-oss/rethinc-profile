@@ -156,14 +156,12 @@ class profile::server::minio (
   -> exec { 'setup:add_local_instance_for_sysop':
     command => '/opt/minio/mcc config host add local http://127.0.0.1:10001 minioadmin minioadmin --api S3v4',
     path    => '/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
-#    unless  => '/opt/minio/mcc config host list | /bin/grep local',
     user    => 'sysop',
     require => [Remote_file['mcc']],
   }
   -> exec { 'setup:add_local_instance_for_root':
     command => '/opt/minio/mcc config host add local http://127.0.0.1:10001 minioadmin minioadmin --api S3v4',
     path    => '/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
-#    unless  => '/opt/minio/mcc config host list | /bin/grep local',
     require => [Remote_file['mcc']],
   }
 }

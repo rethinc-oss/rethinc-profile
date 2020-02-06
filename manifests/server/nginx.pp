@@ -8,7 +8,6 @@ class profile::server::nginx (
   String $acme_server           = 'https://acme-v01.api.letsencrypt.org/directory',
   String $acme_email            = undef,
   Optional[String] $acme_cacert = undef,
-  String $domain_suffix         = '',
 ){
   include ::stdlib
   include ::nginx

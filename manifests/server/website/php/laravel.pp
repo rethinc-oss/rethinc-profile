@@ -29,6 +29,7 @@ define profile::server::website::php::laravel(
   String $php_upload_limit            = lookup('profile::server::nginx::site::php::upload_limit', String),
   Integer $php_execution_limit        = lookup('profile::server::nginx::site::php::execution_limit', Integer),
   String $php_location_match          = lookup('profile::server::nginx::site::php::location_match', String),
+  Boolean $php_use_aws_s3             = false,
 ){
   $vhost_name_main = "${priority}-${domain}"
 
@@ -51,8 +52,9 @@ define profile::server::website::php::laravel(
     php_development          => $php_development,
     php_memory_limit         => $php_memory_limit,
     php_upload_limit         => $php_upload_limit,
-    php_execution_limit      => $php_execution_limit, 
+    php_execution_limit      => $php_execution_limit,
     php_location_match       => $php_location_match,
+    php_use_aws_s3           => $php_use_aws_s3,
   }
 
   nginx::resource::location { "${vhost_name_main}-index-frontend":

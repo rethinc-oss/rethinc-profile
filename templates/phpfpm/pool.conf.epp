@@ -2,6 +2,7 @@
       String $user,
       String $group,
       Optional[String] $prefix = undef,
+      Hash $pool_php_env_values,
       Hash $pool_php_admin_values,
 | -%>
 ;
@@ -96,11 +97,9 @@ pm.max_spare_servers = 3
 ; Pass environment variables like LD_LIBRARY_PATH. All $VARIABLEs are taken from
 ; the current environment.
 ; Default Value: clean env
-;env[HOSTNAME] = $HOSTNAME
-;env[PATH] = /usr/local/bin:/usr/bin:/bin
-;env[TMP] = /tmp
-;env[TMPDIR] = /tmp
-;env[TEMP] = /tmp
+<% $pool_php_env_values.each |$key, $value| { -%>
+env[<%= $key %>]=<%= $value %>
+<% } -%>
 
 ; Additional php.ini defines, specific to this pool of workers. These settings
 ; overwrite the values previously defined in the php.ini. The directives are the

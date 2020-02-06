@@ -29,6 +29,7 @@ define profile::server::nginx::site::php(
   String $php_upload_limit            = lookup('profile::server::nginx::site::php::upload_limit', String),
   Integer $php_execution_limit        = lookup('profile::server::nginx::site::php::execution_limit', Integer),
   String $php_location_match          = lookup('profile::server::nginx::site::php::location_match', String),
+  Boolean $php_use_aws_s3             = false,
 ){
   if !defined(Class['profile::server::nginx']) {
     fail('You must include the nginx profile before declaring a vhost.')
@@ -71,25 +72,37 @@ define profile::server::nginx::site::php(
     "expose_php"          => 'Off'
   }
 
+  $php_env_values_base = $php_use_aws_s3 ? { true => { 'AWS_S3_BUCKET' => $domain }, false => {} }
+
   if $php_development {
     $php_admin_values_devel = {
-      "xdebug.remote_enable"        => "true",
-      "xdebug.remote_connect_back"  => "true",
-      "xdebug.remote_autostart"     => "true",      
-      "error_reporting"             => "E_ALL", 
-      "display_errors"              => "On",
-      "display_startup_errors"      => "On",
+      'xdebug.remote_enable'       => 'true',
+      'xdebug.remote_connect_back' => 'true',
+      'xdebug.remote_autostart'    => 'true',
+      'error_reporting'            => 'E_ALL',
+      'display_errors'             => 'On',
+      'display_startup_errors'     => 'On',
+    }
+
+    if $php_use_aws_s3 {
+      $php_env_values_devel = { 'AWS_S3_ENDPOINT' => 'http://localhost:10001' }
+    }
+    else {
+      $php_env_values_devel = {}
     }
   } else {
     $php_admin_values_devel = {}
+    $php_env_values_devel = {}
   }
 
   $php_admin_values = $php_admin_values_base + $php_admin_values_devel
+  $php_env_values = $php_env_values_base + $php_env_values_devel
 
   ::profile::server::phpfpm::pool { $domain:
     pool_user => $user,
     pool_group => $user,
     pool_php_version => $php_version,
+    pool_php_env_values => $php_env_values,
     pool_php_admin_values => $php_admin_values,
   }
 
