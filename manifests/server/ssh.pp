@@ -3,7 +3,7 @@
 # @summary A short summary of the purpose of this class
 #
 # @example
-#   include profile::server::openssh
+#   include profile::server::ssh
 class profile::server::ssh (
   Integer $listen_port,
   Boolean $password_authentication,
