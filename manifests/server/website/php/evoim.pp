@@ -29,7 +29,7 @@ define profile::server::website::php::evoim(
   String $php_upload_limit            = lookup('profile::server::nginx::site::php::upload_limit', String),
   Integer $php_execution_limit        = lookup('profile::server::nginx::site::php::execution_limit', Integer),
   String $php_location_match          = lookup('profile::server::nginx::site::php::location_match', String),
-  Boolean $php_use_aws_s3             = false,
+  Hash $php_env_vars                  = {},
 ){
     $vhost_name_main = "${priority}-${domain}"
 
@@ -54,7 +54,7 @@ define profile::server::website::php::evoim(
     php_upload_limit         => $php_upload_limit,
     php_execution_limit      => $php_execution_limit,
     php_location_match       => $php_location_match,
-    php_use_aws_s3           => $php_use_aws_s3,
+    php_env_vars             => $php_env_vars,
   }
 
   nginx::resource::location { "${vhost_name_main}-index-frontend":
