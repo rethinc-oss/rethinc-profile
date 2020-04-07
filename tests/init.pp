@@ -10,7 +10,6 @@ node default {
     acme_server => 'https://localhost:14000/dir',
     acme_cacert => '/opt/pebble/minica.pem',
     acme_email => 'dummy@local.dev',
-    domain_suffix => 'localdev',
   }
   include ::profile::server::phpfpm
 
@@ -19,7 +18,7 @@ node default {
     https => false,
     php_version => '7.3',
     php_development => true,
-    php_modules => ['bcmath', 'json', 'mbstring', 'xml', 'mysql', 'tokenizer'],
+    php_modules => ['bcmath', 'json', 'mbstring', 'xml', 'mysql', 'tokenizer', 'pdflib'],
   }
 #  ::mysql::db { 'example':
 #      user     => 'example',
