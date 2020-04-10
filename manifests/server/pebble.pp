@@ -1,28 +1,30 @@
 class profile::server::pebble {
   include ::stdlib
 
+  $pebble_version = 'v2.0.2'
+
   exec { 'download_pebble':
-    command     => '/usr/bin/go get -u github.com/letsencrypt/pebble/...',
+    command     => '/usr/bin/go get -d -u github.com/letsencrypt/pebble/...',
     environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
     creates     => '/opt/go/src/github.com/letsencrypt/pebble/',
-    logoutput   => true,
     require     => [ Package['golang-go'] ],
   }
 
   exec { 'checkout_pebble':
-    command     => '/usr/bin/git checkout v2.0.2',
+    command     => "/usr/bin/git checkout ${pebble_version} && rm -f /opt/ho/bin/pebble && rm -f /opt/ho/bin/pebble-challtestsrv",
     environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
     cwd         => '/opt/go/src/github.com/letsencrypt/pebble/',
-    logoutput   => true,
+    onlyif      => "/usr/bin/test $(/usr/bin/git describe --tags) != '${pebble_version}'",
     require     => [ Exec['download_pebble'] ],
   }
 
   exec { 'install_pebble':
-    command     => '/usr/bin/go install ./...',
+    command     => '/usr/bin/go install -mod=readonly ./...',
     environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
     cwd         => '/opt/go/src/github.com/letsencrypt/pebble/',
-    logoutput   => true,
+    creates     => '/opt/go/bin/pebble',
     require     => [ Exec['checkout_pebble'] ],
+    notify      => Systemd::Unit_file['pebble.service']
   }
 
   file { '/opt/pebble':
