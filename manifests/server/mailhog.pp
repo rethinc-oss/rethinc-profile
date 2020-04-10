@@ -13,6 +13,6 @@ class profile::server::mailhog {
     source  => 'puppet:///modules/profile/mailhog/mailhog.service',
     enable  => true,
     active  => true,
-    require => [Exec['install_pebble']],
+    require => [Exec['install_mailhog']],
   }
 }

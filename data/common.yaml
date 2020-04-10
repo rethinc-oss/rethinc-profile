@@ -53,3 +53,4 @@ profile::server::phpfpm::modules:
   xdebug: ['*']
   pdflib: ['7.0', '7.1', '7.2', '7.3', '7.4']
 profile::server::phpfpm::versions: ['7.0', '7.1', '7.2', '7.3', '7.4']
+profile::server::base::management_user_password: sysop
