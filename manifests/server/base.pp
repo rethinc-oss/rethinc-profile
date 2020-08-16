@@ -44,7 +44,7 @@
 #       bob@example.com:
 #         type: ssh-ed25519
 #         key: AAAAC3NzaC1lZdeF54E5AAAAIBKQkiccEOf3yww62zTQwZSPX96eL7zVqPmAF56lnW
-#         comment: Alice (Login Key)
+#         comment: Bob (Login Key)
 #
 class profile::server::base (
   String $timezone,
@@ -53,8 +53,10 @@ class profile::server::base (
   String $management_user_name,
   String $management_user_login,
   String $management_user_password,
+  Array[String] $management_user_groups,
   Optional[Array[String]] $management_user_addon_groups = undef,
   Optional[Array[String]] $management_user_public_keys = undef,
+  Optional[Hash[String, Hash]] $public_key_definitions = lookup('profile::server::ssh::keys', Optional[Hash[String, Hash]], undef, undef)
   ){
 
   include ::stdlib
@@ -119,10 +121,9 @@ class profile::server::base (
     ensure => present,
   }
 
-  $salt = fqdn_rand_string(16, undef, "User[${management_user_login}]")
-  $opt_management_user_pw = pw_hash($management_user_password, 'SHA-512',$salt)
+  $opt_management_user_pw = str2sha512shadow($management_user_password)
 
-  $opt_management_user_groups = ['adm', 'cdrom', 'dip', 'plugdev', 'lpadmin', 'sambashare'] + $management_user_addon_groups
+  $opt_management_user_groups = $management_user_groups + $management_user_addon_groups
   user { $management_user_login:
     ensure     => present,
     groups     => $opt_management_user_groups,
@@ -132,19 +133,17 @@ class profile::server::base (
     require    => [Group[$management_user_addon_groups]],
   }
 
-  $key_definitions = lookup('profile::server::ssh::keys', Array[String], undef, [])
-
   if ($management_user_public_keys != undef) {
     $management_user_public_keys.each |String $for_user| {
-      if ($key_definitions[$for_user] == undef) {
-        warn("Key for ${key_definitions[$for_user]} not found!")
+      if ($public_key_definitions == undef or $public_key_definitions[$for_user] == undef) {
+        fail("Key for ${for_user} not found!")
       } else {
-        ssh_authorized_key { $for_user:
+        ssh_authorized_key { "${management_user_login}(${for_user})":
           ensure => present,
           user   => $management_user_login,
-          type   => $key_definitions[$for_user]['type'],
-          key    => $key_definitions[$for_user]['key'],
-          name   => $key_definitions[$for_user]['comment'],
+          type   => $public_key_definitions[$for_user]['type'],
+          key    => $public_key_definitions[$for_user]['key'],
+          name   => $public_key_definitions[$for_user]['comment'],
         }
       }
     }
@@ -154,4 +153,11 @@ class profile::server::base (
 
   $utilities = ['htop', 'nano', 'mc', 'dnsutils', 'bash-completion', 'software-properties-common', 'screen', 'psmisc', 'net-tools']
   package { $utilities: ensure => installed }
+
+  file { '/etc/nanorc':
+    path    => '/etc/nanorc',
+    mode    => '0644',
+    source  => 'puppet:///modules/profile/nano/nanorc',
+    require => Package['nano'],
+  }
 }

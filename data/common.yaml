@@ -1,10 +1,13 @@
 ---
-profile::server::management_group: operator
 profile::server::base::timezone: Europe/Berlin
 profile::server::base::keyboard_layout: de
 profile::server::base::locale: en_US.UTF-8
+profile::server::management_group: operator
 profile::server::base::management_user_name: System Operator
 profile::server::base::management_user_login: sysop
+profile::server::base::management_user_groups:
+  - adm
+  - sudo
 profile::server::base::management_user_addon_groups:
   - "%{lookup('profile::server::management_group')}"
 profile::server::ssh::password_authentication: false
