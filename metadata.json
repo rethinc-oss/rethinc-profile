@@ -56,7 +56,7 @@
     },
     {
       "name": "willdurand-composer",
-      "version_requirement": "1.2.7"
+      "version_requirement": "1.2.9"
     },
     {
       "name": "puppetlabs-stdlib",
