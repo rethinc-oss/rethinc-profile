@@ -26,16 +26,22 @@
 #   The login name of the system-management user. Default value: sysop
 # @param management_user_password
 #   The password of the system-management user. Default value: n/a.
+# @param management_user_groups
+#   The groups of the management user. Default value: [adm, sudo]
 # @param management_user_addon_groups
 #   An array of groups, the system-management user should be a member of in addition to
 #   the default group memberships assigned at user creation. By default there is one
 #   group specified, its value is looked up from the profile-level hiera variable
 #   profile::server::management_group. Default value [operator]
 # @param management_user_public_keys
-#   An array of unique values (usualy email addresses). The values are looked up as
-#   keys in the profile-level hiera variable profile::server::ssh::keys. The keys are
-#   added as authorized public ssh-keys:
-#
+#   An array of unique values (usually email addresses). The values are looked up as
+#   keys from the $public_key_definition hash. The defined public keys are added as
+#   authorized keys for the account.
+# @param $public_key_definitions
+#   A Hash containing SSH public-key definitions. By default the content of the hash
+#   is looked up in the shared hiera variable 'profile::server::ssh::keys'. This has the
+#   advantage that the key definition may be reused by other classes.
+#   
 #     profile::server::ssh::keys:
 #       alice@example.com:
 #         type: ssh-ed25519
@@ -121,29 +127,29 @@ class profile::server::base (
     ensure => present,
   }
 
-  $opt_management_user_pw = str2sha512shadow($management_user_password)
+  $_management_user_pw = str2sha512shadow($management_user_password)
 
-  $opt_management_user_groups = $management_user_groups + $management_user_addon_groups
+  $_management_user_groups = $management_user_groups + $management_user_addon_groups
   user { $management_user_login:
     ensure     => present,
-    groups     => $opt_management_user_groups,
+    groups     => $_management_user_groups,
     comment    => $management_user_name,
     managehome => true,
-    password   => Sensitive($opt_management_user_pw),
+    password   => Sensitive($_management_user_pw),
     require    => [Group[$management_user_addon_groups]],
   }
 
   if ($management_user_public_keys != undef) {
-    $management_user_public_keys.each |String $for_user| {
-      if ($public_key_definitions == undef or $public_key_definitions[$for_user] == undef) {
-        fail("Key for ${for_user} not found!")
+    $management_user_public_keys.each |String $key_id| {
+      if ($public_key_definitions == undef or $public_key_definitions[$key_id] == undef) {
+        fail("Key for ${key_id} not found!")
       } else {
-        ssh_authorized_key { "${management_user_login}(${for_user})":
+        ssh_authorized_key { "${management_user_login}(${key_id})":
           ensure => present,
           user   => $management_user_login,
-          type   => $public_key_definitions[$for_user]['type'],
-          key    => $public_key_definitions[$for_user]['key'],
-          name   => $public_key_definitions[$for_user]['comment'],
+          type   => $public_key_definitions[$key_id]['type'],
+          key    => $public_key_definitions[$key_id]['key'],
+          name   => $public_key_definitions[$key_id]['comment'],
         }
       }
     }
@@ -155,8 +161,11 @@ class profile::server::base (
   package { $utilities: ensure => installed }
 
   file { '/etc/nanorc':
+    ensure  => present,
     path    => '/etc/nanorc',
     mode    => '0644',
+    owner   => 'root',
+    group   => 'root',
     source  => 'puppet:///modules/profile/nano/nanorc',
     require => Package['nano'],
   }

@@ -90,7 +90,7 @@ describe 'profile::server::base' do
         'ensure' => 'present',
         'owner'  => 'root',
         'group'  => 'root',
-        'mode'   => '0444',})
+        'mode'   => '0644',})
       }
     end
   end
