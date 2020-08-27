@@ -5,7 +5,7 @@
 # @example
 #   include profile::server::nginx
 class profile::server::nginx (
-  String $acme_server           = 'https://acme-v01.api.letsencrypt.org/directory',
+  String $acme_server           = 'https://acme-v02.api.letsencrypt.org/directory',
   String $acme_email            = undef,
   Optional[String] $acme_cacert = undef,
 ){
@@ -104,15 +104,24 @@ class profile::server::nginx (
 
   apt::ppa { 'ppa:certbot/certbot': }
 
+  if $facts['os']['name'] == 'Ubuntu' {
+    if $facts['os']['release']['major'] == '20.04' {
+      $_install_method = 'package'
+    }
+    else {
+      $_install_method = 'vcs'
+    }
+  }
+
   class { 'letsencrypt':
-#    package_ensure => 'latest',
-    install_method => 'vcs',
-    agree_tos      => true,
-    config         => {
+    package_ensure    => 'installed',
+    install_method    => $_install_method,
+    agree_tos         => true,
+    config            => {
       email  => $acme_email,
       server => $acme_server,
     },
     cron_scripts_path => '/var/letsencrypt', # Specify this manually, because automatic detection fails with Bolt
-    require        => [ Class['apt::update'], Apt::Ppa['ppa:certbot/certbot'] ],
+    require           => [ Class['apt::update'], Apt::Ppa['ppa:certbot/certbot'] ],
   }
 }
