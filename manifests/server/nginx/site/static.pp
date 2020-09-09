@@ -18,9 +18,10 @@ define profile::server::nginx::site::static(
   Integer $https_port                 = 443,
   String $user                        = $domain,
   String $user_dir                    = "/var/www/${domain}",
+  Boolean $manage_user_dir            = true,
   Optional[String] $user_addon_group  = lookup('profile::server::nginx::site::static::user_addon_group', Optional[String], undef, undef),
   Optional[Array[String]] $user_public_keys = lookup('profile::server::nginx::site::static::user_public_keys', Optional[Array[String]], undef, undef),
-  Boolean $manage_user_dir            = true,
+  Optional[Hash[String, Hash]] $public_key_definitions = lookup('profile::server::ssh::keys', Optional[Hash[String, Hash]], undef, undef),
   String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx/',
   Array[Hash] $cronjobs               = [],
@@ -59,6 +60,7 @@ define profile::server::nginx::site::static(
 
   # define the user account for the webpage
 
+  # TODO: Add comment
   if $manage_user_dir {
     $create_user_params = {
       ensure     => 'present',
@@ -92,19 +94,17 @@ define profile::server::nginx::site::static(
 
   User <| title == www-data |> { groups +> $user }
 
-  $key_definitions = lookup('profile::server::ssh::keys', Array[String], undef, [])
-
   if ($user_public_keys != undef) {
-    $user_public_keys.each |String $for_user| {
-      if ($key_definitions[$for_user] == undef) {
-        warn("Key for ${key_definitions[$for_user]} not found!")
+    $user_public_keys.each |String $key_id| {
+      if ($public_key_definitions == undef or $public_key_definitions[$key_id] == undef) {
+        fail("Key for ${key_id} not found!")
       } else {
-        ssh_authorized_key { $for_user:
+        ssh_authorized_key { "${user}(${key_id})":
           ensure => present,
           user   => $user,
-          type   => $key_definitions[$for_user]['type'],
-          key    => $key_definitions[$for_user]['key'],
-          name   => $key_definitions[$for_user]['comment'],
+          type   => $public_key_definitions[$key_id]['type'],
+          key    => $public_key_definitions[$key_id]['key'],
+          name   => $public_key_definitions[$key_id]['comment'],
         }
       }
     }
