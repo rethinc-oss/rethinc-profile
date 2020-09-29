@@ -4,18 +4,22 @@ define profile::server::phpfpm::modules::pdflib(
   $extension_infos = {
     '7.2' => {
       extension_dir => '/usr/lib/php/20170718',
-      source_dir => 'PDFlib-9.2.0-Linux-x86_64-php/bind/php/php-720-nts'
+      source_dir => 'PDFlib-9.2.0p6-Linux-x86_64-php/bind/php/php-720-nts'
     },
     '7.3' => {
       extension_dir => '/usr/lib/php/20180731',
-      source_dir => 'PDFlib-9.2.0-Linux-x86_64-php/bind/php/php-730-nts'
+      source_dir => 'PDFlib-9.2.0p6-Linux-x86_64-php/bind/php/php-730-nts'
+    },
+    '7.4' => {
+      extension_dir => '/usr/lib/php/20190902',
+      source_dir => 'PDFlib-9.2.0p6-Linux-x86_64-php/bind/php/php-740-nts'
     }
   }
 
   remote_file { 'download_dist_archive':
     ensure => present,
     path   => '/tmp/pdflib-9.2.0.tar',
-    source => 'https://www.pdflib.com/binaries/PDFlib/920/PDFlib-9.2.0-Linux-x86_64-php.tar.gz',
+    source => 'https://www.pdflib.com/binaries/PDFlib/920/PDFlib-9.2.0p6-Linux-x86_64-php.tar.gz',
   }
 
   exec { 'extract_dist_archive':
