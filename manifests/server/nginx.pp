@@ -101,9 +101,6 @@ class profile::server::nginx (
     require                   => [ File[$default_vhost_files], Exec['generate_dhparams'], Exec['generate_default_sslcert'] ],
   }
 
-
-  apt::ppa { 'ppa:certbot/certbot': }
-
   if $facts['os']['name'] == 'Ubuntu' {
     if $facts['os']['release']['major'] == '20.04' {
       $_install_method = 'package'
@@ -122,6 +119,6 @@ class profile::server::nginx (
       server => $acme_server,
     },
     cron_scripts_path => '/var/letsencrypt', # Specify this manually, because automatic detection fails with Bolt
-    require           => [ Class['apt::update'], Apt::Ppa['ppa:certbot/certbot'] ],
+    require           => [ Class['apt::update'] ],
   }
 }
