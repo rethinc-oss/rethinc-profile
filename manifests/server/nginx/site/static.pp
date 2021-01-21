@@ -280,13 +280,16 @@ define profile::server::nginx::site::static(
     }
 
     letsencrypt::certonly { $real_domain:
-      domains       => delete_undef_values( [$primary_domain, $secondary_domain] ),
-      plugin        => 'webroot',
-      webroot_paths => [$webroot],
-      environment   => $::profile::server::nginx::acme_cacert != undef ? {
-        true  => ["REQUESTS_CA_BUNDLE=${::profile::server::nginx::acme_cacert}"],
-        false => [] },
-      require       => Exec['nginx_reload'],
+      domains              => delete_undef_values( [$primary_domain, $secondary_domain] ),
+      plugin               => 'webroot',
+      webroot_paths        => [$webroot],
+      deploy_hook_commands => ['/usr/bin/systemctl reload nginx.service'],
+      environment          =>
+        $::profile::server::nginx::acme_cacert != undef ? {
+          true  => ["REQUESTS_CA_BUNDLE=${::profile::server::nginx::acme_cacert}"],
+          false => []
+        },
+      require              => Exec['nginx_reload'],
     }
   }
 }

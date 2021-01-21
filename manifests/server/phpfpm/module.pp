@@ -22,6 +22,7 @@ define profile::server::phpfpm::module(
       unless defined(::Profile::Server::Phpfpm::Modules::Pdflib['pdflib']) {
         profile::server::phpfpm::modules::pdflib{'pdflib':
           php_version => $php_version,
+          require     => ::Profile::Server::Phpfpm::Instance[$php_version]
         }
       }
     }

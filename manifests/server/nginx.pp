@@ -12,32 +12,55 @@ class profile::server::nginx (
   include ::stdlib
   include ::nginx
 
+  @apt::ppa { 'ppa:ondrej/nginx': }
+
+  $default_fqdn        = 'default.vhost'
+  $default_cert        = "/etc/nginx/${default_fqdn}.crt"
+  $default_key         = "/etc/nginx/${default_fqdn}.key"
+  $default_log         = "/var/log/nginx/${default_fqdn}.log"
   $default_vhost_files = ['/etc/nginx/sites-enabled/default', '/etc/nginx/sites-available/default']
+  $dhparam_file        = '/etc/ssl/certs/dhparam2048.pem'
+
   file{ $default_vhost_files:
     ensure => 'absent',
   }
 
-  $dhparam_file = '/etc/ssl/certs/dhparam2048.pem'
   exec { 'generate_dhparams':
     command => "/usr/bin/sudo /usr/bin/openssl dhparam -outform PEM -out ${dhparam_file} 2048",
-    creates => '/etc/ssl/certs/dhparam2048.pem',
+    creates => $dhparam_file,
+    require => Package['nginx'],
+  }
+  -> file{ $dhparam_file:
+    ensure => 'file',
+    owner  => $nginx::params::daemon_user,
+    group  => $nginx::params::daemon_user,
+    mode   => '0600',
   }
 
-  $default_fqdn = 'default.vhost'
-  $default_cert = "/etc/nginx/${default_fqdn}.crt"
-  $default_key = "/etc/nginx/${default_fqdn}.key"
-  $default_log = "/var/log/nginx/${default_fqdn}.log"
   exec { 'generate_default_sslcert':
     command => "/usr/bin/sudo /usr/bin/openssl req -newkey rsa:2048 -nodes -keyout ${default_key} -x509 -days 3650 -out ${default_cert} -subj '/CN=${default_fqdn}'",
-    creates => ['/etc/nginx/default.vhost.key', '/etc/nginx/default.vhost.crt']
+    creates => [$default_key, $default_cert],
+    require => Package['nginx'],
+  }
+  -> file{ $default_key:
+    ensure => 'file',
+    owner  => $nginx::params::daemon_user,
+    group  => $nginx::params::daemon_user,
+    mode   => '0600',
+  }
+  -> file{ $default_cert:
+    ensure => 'file',
+    owner  => $nginx::params::daemon_user,
+    group  => $nginx::params::daemon_user,
+    mode   => '0600',
   }
 
-  @user { 'www-data':  ### TODO: Nicht hartcodieren sondern die variable aus der nginx klasse benutzen!!!
-    gid        => 'www-data',
+  @user { $nginx::params::daemon_user:
+    gid        => $nginx::params::daemon_user,
     groups     => [],
     membership => inclusive,
   }
-  User <| title == www-data |>
+  User <| title == $nginx::params::daemon_user |>
 
   nginx::resource::server{ '000-default_http':
     use_default_location => false,
@@ -101,18 +124,9 @@ class profile::server::nginx (
     require                   => [ File[$default_vhost_files], Exec['generate_dhparams'], Exec['generate_default_sslcert'] ],
   }
 
-  if $facts['os']['name'] == 'Ubuntu' {
-    if $facts['os']['release']['major'] == '20.04' {
-      $_install_method = 'package'
-    }
-    else {
-      $_install_method = 'vcs'
-    }
-  }
-
   class { 'letsencrypt':
     package_ensure    => 'installed',
-    install_method    => $_install_method,
+    install_method    => 'package',
     agree_tos         => true,
     config            => {
       email  => $acme_email,

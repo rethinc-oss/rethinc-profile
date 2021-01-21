@@ -73,12 +73,13 @@ class profile::server::base (
   class { '::profile::server::bootstrap':
     stage => setup,
   }
-
-  class { '::apt':
+  -> class { '::apt':
     update => {
-      frequency => 'daily',
+      frequency => 'always',
     },
   }
+
+  ::Apt::Ppa <| |> -> Class['::apt::update'] -> Package <| |>
 
   ### Configure the core location and language settings
 
@@ -89,7 +90,7 @@ class profile::server::base (
   }
 
   $console_data_pkgs = ['console-data', 'unicode-data']
-  package { $console_data_pkgs: ensure => 'installed' }
+  ensure_packages($console_data_pkgs)
 
   file { '/etc/default/keyboard':
     ensure  => 'present',
@@ -157,8 +158,7 @@ class profile::server::base (
 
   ### Install core utility packages
 
-  $utilities = ['htop', 'nano', 'mc', 'dnsutils', 'bash-completion', 'software-properties-common', 'screen', 'psmisc', 'net-tools']
-  package { $utilities: ensure => installed }
+  ensure_packages(['htop', 'nano', 'mc', 'dnsutils', 'bash-completion', 'screen', 'psmisc', 'net-tools'])
 
   file { '/etc/nanorc':
     ensure  => present,

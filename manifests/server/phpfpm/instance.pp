@@ -13,13 +13,18 @@ define profile::server::phpfpm::instance(
 
   $default_pool = "/etc/php/${php_version}/fpm/pool.d/www.conf"
 
-  package { $php_package:
-    ensure => present,
+  ensure_packages([$php_package])
+
+  service { $php_package:
+    ensure  => 'running',
+    enable  => true,
+    require => Package[$php_package],
   }
 
   file { $default_pool:
     ensure  => absent,
     require => Package[$php_package],
+    notify  => Service[$php_package]
   }
 
   systemd::dropin_file { "${php_package}-dropin":
@@ -28,9 +33,7 @@ define profile::server::phpfpm::instance(
     content => epp('profile/phpfpm/systemd.dropin.epp', {
       php_version => $php_version,
     }),
-    require => File[$default_pool],
-  }
-  ~> service { $php_package:
-    ensure  => 'running',
+    require => Package[$php_package],
+    notify  => Service[$php_package]
   }
 }

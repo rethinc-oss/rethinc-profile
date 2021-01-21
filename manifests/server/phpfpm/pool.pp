@@ -23,6 +23,7 @@ define profile::server::phpfpm::pool(
       pool_php_env_values => $pool_php_env_values,
       pool_php_admin_values => $pool_php_admin_values,
     }),
+    require => Package[$pool_fpm_service],
     notify  => Service[$pool_fpm_service]
   }
 }

@@ -52,7 +52,7 @@ define profile::server::nginx::site::php(
   realize (::Profile::Server::Phpfpm::Instance[$php_version])
 
   $real_php_modules.each |$site_module| {
-    realize ::Profile::Server::Phpfpm::Module["${php_version}-${site_module}"]
+    realize (::Profile::Server::Phpfpm::Module["${php_version}-${site_module}"])
   }
 
   class { '::composer':

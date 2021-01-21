@@ -8,7 +8,7 @@ class profile::server::phpfpm (
   Array[String] $versions                     = undef,
   Hash[String, Array[String]] $modules = undef,
 ){
-  apt::ppa { 'ppa:ondrej/php': }
+  @apt::ppa { 'ppa:ondrej/php': }
 
   $versions.each |$cur_version| {
     @::profile::server::phpfpm::instance{ $cur_version: }
