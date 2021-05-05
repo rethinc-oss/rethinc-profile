@@ -28,12 +28,12 @@ define profile::server::phpfpm::instance(
   }
 
   systemd::dropin_file { "${php_package}-dropin":
-    unit    => "${php_package}.service",
-    name    => 'local.conf',
-    content => epp('profile/phpfpm/systemd.dropin.epp', {
+    unit     => "${php_package}.service",
+    filename => 'local.conf',
+    content  => epp('profile/phpfpm/systemd.dropin.epp', {
       php_version => $php_version,
     }),
-    require => Package[$php_package],
-    notify  => Service[$php_package]
+    require  => Package[$php_package],
+    notify   => Service[$php_package]
   }
 }
