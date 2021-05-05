@@ -1,29 +1,43 @@
 class profile::server::pebble {
   include ::stdlib
 
-  $pebble_version = 'v2.0.2'
+  $pebble_version = 'v2.3.1'
 
-  exec { 'download_pebble':
-    command     => '/usr/bin/go get -d -u github.com/letsencrypt/pebble/...',
-    environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
-    creates     => '/opt/go/src/github.com/letsencrypt/pebble/',
-    require     => [ Package['golang-go'] ],
+  exec { 'create_pebble_source_dir':
+    command => '/usr/bin/mkdir -p /opt/go/src/github.com/letsencrypt/',
+    creates => '/opt/go/src/github.com/letsencrypt/',
+    onlyif  => '/usr/bin/test ! -d /opt/go/src/github.com/letsencrypt/',
   }
 
-  exec { 'checkout_pebble':
-    command     => "/usr/bin/git checkout ${pebble_version} && rm -f /opt/ho/bin/pebble && rm -f /opt/ho/bin/pebble-challtestsrv",
-    environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
-    cwd         => '/opt/go/src/github.com/letsencrypt/pebble/',
-    onlyif      => "/usr/bin/test $(/usr/bin/git describe --tags) != '${pebble_version}'",
-    require     => [ Exec['download_pebble'] ],
+  exec { 'clone_pebble_repo':
+    command => '/usr/bin/git clone https://github.com/letsencrypt/pebble.git',
+    cwd     => '/opt/go/src/github.com/letsencrypt/',
+    creates => '/opt/go/src/github.com/letsencrypt/pebble/',
+    onlyif  => '/usr/bin/test ! -d /opt/go/src/github.com/letsencrypt/pebble/.git',
+    require => [ Exec['create_pebble_source_dir'] ],
+  }
+
+  exec { 'fetch_pebble_repo':
+    command => '/usr/bin/git fetch',
+    cwd     => '/opt/go/src/github.com/letsencrypt/pebble/',
+    onlyif  => "/usr/bin/test -d /opt/go/src/github.com/letsencrypt/pebble/.git -a $(/usr/bin/git describe --tags) != '${pebble_version}'",
+    require => [ Exec['clone_pebble_repo'] ],
+  }
+
+  exec { 'checkout_pebble_version':
+    command => "/usr/bin/git checkout -f ${pebble_version} && rm -f /opt/go/bin/pebble && rm -f /opt/go/bin/pebble-challtestsrv",
+    cwd     => '/opt/go/src/github.com/letsencrypt/pebble/',
+    onlyif  => "/usr/bin/test $(/usr/bin/git describe --tags) != '${pebble_version}'",
+    require => [ Exec['fetch_pebble_repo'] ],
   }
 
   exec { 'install_pebble':
     command     => '/usr/bin/go install -mod=readonly ./...',
     environment => ['GOPATH=/opt/go', 'GOCACHE=/opt/go/cache'],
     cwd         => '/opt/go/src/github.com/letsencrypt/pebble/',
+    onlyif      => '/usr/bin/test ! -f /opt/go/bin/pebble',
     creates     => '/opt/go/bin/pebble',
-    require     => [ Exec['checkout_pebble'] ],
+    require     => [ Package['golang-go'], Exec['checkout_pebble_version'] ],
     notify      => Systemd::Unit_file['pebble.service']
   }
 
