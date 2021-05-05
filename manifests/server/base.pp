@@ -98,6 +98,12 @@ class profile::server::base (
     require => Package[$console_data_pkgs]
   }
 
+  exec { 'activate_console_config':
+    command     => '/usr/bin/setupcon',
+    subscribe   => [ File['/etc/default/keyboard'] ],
+    refreshonly => true,
+  }
+
   ### Configure the timezone and set up time synchronization via NTP
 
   class { 'timezone':
