@@ -55,18 +55,6 @@ define profile::server::nginx::site::php(
     realize (::Profile::Server::Phpfpm::Module["${php_version}-${site_module}"])
   }
 
-  class { '::composer':
-    command_name => 'composer',
-    target_dir   => '/usr/local/bin',
-    auto_update  => true,
-    require => ::Profile::Server::Phpfpm::Instance[$php_version],
-  }
-
-    class { '::nodejs':
-    repo_url_suffix => '13.x',
-    require => Class['::composer'],
-  }
-
   $php_admin_values_base = {
     "memory_limit"        => $php_memory_limit,
     "upload_max_filesize" => $php_upload_limit,
@@ -92,12 +80,57 @@ define profile::server::nginx::site::php(
   $php_env_values = $php_env_vars
 
   ::profile::server::phpfpm::pool { $domain:
-    pool_user => $user,
-    pool_group => $user,
-    pool_php_version => $php_version,
-    pool_php_env_values => $php_env_values,
+    pool_user             => $user,
+    pool_group            => $user,
+    pool_php_version      => $php_version,
+    pool_php_env_values   => $php_env_values,
     pool_php_admin_values => $php_admin_values,
   }
+
+  file { "${user_dir}/bin":
+    ensure  => 'directory',
+    owner   => $user,
+    group   => $user,
+    mode    => '0770',
+    require => [
+      ::Profile::Server::Nginx::Site::Static[$title],
+    ],
+  }
+  -> file { "${user_dir}/bin/php":
+    ensure  => 'link',
+    target  => "/usr/bin/php${php_version}",
+    owner   => $user,
+    group   => $user,
+    mode    => '0770',
+    require => [
+      ::Profile::Server::Phpfpm::Instance[$php_version],
+    ],
+  }
+
+profile::server::phpfpm::composer{ "${user_dir}/bin/composer":
+  owner   => $user,
+  require => [
+    ::Profile::Server::Phpfpm::Instance[$php_version],
+    File["${user_dir}/bin"],
+  ],
+}
+
+#  class { '::composer':
+#    command_name => 'composer',
+#    target_dir   => "${user_dir}/bin",
+#    user         => $user,
+#    group        => $user,
+#    auto_update  => true,
+#    require      => [
+#      ::Profile::Server::Phpfpm::Instance[$php_version],
+#      ::Profile::Server::Nginx::Site::Static[$title],
+#    ],
+#  }
+
+#    class { '::nodejs':
+#    repo_url_suffix => '13.x',
+#    require => Class['::composer'],
+#  }
 
   ::profile::server::nginx::site::static{ $title:
     domain                 => $domain,
