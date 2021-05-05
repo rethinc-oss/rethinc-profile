@@ -10,7 +10,10 @@ class profile::server::nginx (
   Optional[String] $acme_cacert = undef,
 ){
   include ::stdlib
-  include ::nginx
+
+  class {'::nginx':
+    server_purge => true,
+  }
 
   @apt::ppa { 'ppa:ondrej/nginx': }
 
