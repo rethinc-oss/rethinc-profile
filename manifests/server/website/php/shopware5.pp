@@ -19,7 +19,7 @@ define profile::server::website::php::shopware5(
   String $user                        = $domain,
   String $user_dir                    = "/var/www/${domain}",
   Boolean $manage_user_dir            = true,
-  String $webroot                     = "${user_dir}/public",
+  String $webroot                     = "${user_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx',
   Array[Hash] $cronjobs               = [],
   String $php_version                 = lookup('profile::server::nginx::site::php::version', String),
