@@ -4,10 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/opt/go/bin/pebble -config /opt/pebble/config.json -strict false -dnsserver 127.0.0.53:53
+ExecStart=/opt/go/bin/pebble -config /opt/pebble/config.json -dnsserver 127.0.0.53:53
 Environment="PEBBLE_WFE_NONCEREJECT=0" "PEBBLE_VA_NOSLEEP=1"
 Restart=always
-
 
 [Install]
 WantedBy=multi-user.target
