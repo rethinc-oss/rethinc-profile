@@ -53,6 +53,7 @@
 #         comment: Bob (Login Key)
 #
 class profile::server::base (
+  Boolean $unattended_upgrades,
   String $timezone,
   String $keyboard_layout,
   String $locale,
@@ -71,6 +72,7 @@ class profile::server::base (
 
   # Ensure that the APT package index is uptodate
   class { '::profile::server::bootstrap':
+    unattended_upgrades => $unattended_upgrades,
     stage => setup,
   }
   -> class { '::apt':

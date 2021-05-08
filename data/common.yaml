@@ -1,4 +1,5 @@
 ---
+profile::server::base::unattended_upgrades: true
 profile::server::base::timezone: Europe/Berlin
 profile::server::base::keyboard_layout: de
 profile::server::base::locale: en_US.UTF-8
