@@ -22,7 +22,8 @@ define profile::server::nginx::site::php(
   Optional[String] $user_addon_group  = lookup('profile::server::nginx::site::static::user_addon_group', Optional[String], undef, undef),
   Optional[Array[String]] $user_public_keys = lookup('profile::server::nginx::site::static::user_public_keys', Optional[Array[String]], undef, undef),
   Optional[Hash[String, Hash]] $public_key_definitions = lookup('profile::server::ssh::keys', Optional[Hash[String, Hash]], undef, undef),
-  String $webroot                     = "${user_dir}/htdocs",
+  String $webroot_parent_dir          = $user_dir,
+  String $webroot                     = "${webroot_parent_dir}/htdocs",
   String $log_dir                     = '/var/log/nginx',
   Array[Hash] $cronjobs               = [],
   String $php_version                 = lookup('profile::server::nginx::site::php::version', String),
@@ -115,23 +116,6 @@ profile::server::phpfpm::composer{ "${user_dir}/bin/composer":
   ],
 }
 
-#  class { '::composer':
-#    command_name => 'composer',
-#    target_dir   => "${user_dir}/bin",
-#    user         => $user,
-#    group        => $user,
-#    auto_update  => true,
-#    require      => [
-#      ::Profile::Server::Phpfpm::Instance[$php_version],
-#      ::Profile::Server::Nginx::Site::Static[$title],
-#    ],
-#  }
-
-#    class { '::nodejs':
-#    repo_url_suffix => '13.x',
-#    require => Class['::composer'],
-#  }
-
   ::profile::server::nginx::site::static{ $title:
     domain                 => $domain,
     domain_www             => $domain_www,
@@ -146,6 +130,7 @@ profile::server::phpfpm::composer{ "${user_dir}/bin/composer":
     user_addon_group       => $user_addon_group,
     user_public_keys       => $user_public_keys,
     public_key_definitions => $public_key_definitions,
+    webroot_parent_dir     => $webroot_parent_dir,
     webroot                => $webroot,
     log_dir                => $log_dir,
     cronjobs               => $cronjobs,
